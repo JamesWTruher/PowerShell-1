@@ -700,7 +700,7 @@ namespace Microsoft.PowerShell.Commands.Internal.Format
 
                     foreach (FormatPropertyField fpf in tre.formatPropertyFieldList)
                     {
-                        cellCount = _lo.DisplayCells.Length(fpf.propertyValue);
+                        cellCount = _lo.DisplayCells.Length(fpf._propertyValue);
                         if (widths[kk] < cellCount)
                             widths[kk] = cellCount;
 
@@ -735,7 +735,7 @@ namespace Microsoft.PowerShell.Commands.Internal.Format
 
                     if (!string.IsNullOrEmpty(fpf.propertyValue))
                     {
-                        cellCount = _lo.DisplayCells.Length(fpf.propertyValue);
+                        cellCount = _lo.DisplayCells.Length(fpf._propertyValue);
                         if (cellCount > maxLen)
                             maxLen = cellCount;
                     }
