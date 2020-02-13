@@ -356,8 +356,22 @@ namespace Microsoft.PowerShell.Commands.Internal.Format
 
         public override string ClassId2e4f51ef21dd47e99d3c952918aff9cd { get { return CLSID; } }
 
-        public string propertyValue = null;
+        internal string _propertyValue = null;
+        public string propertyValue {
+            set { _propertyValue = value; }
+            get {
+                if (returnValueWithAttribute && ! string.IsNullOrEmpty(attribute)) {
+                    return ("\u001b[" + attribute + "m" + _propertyValue + (resetAfterUse ? "\u001b[0m" : ""));
+                }
+                else {
+                    return _propertyValue;
+                }
+            }
+        }
         public int alignment = TextAlignment.Undefined;
+        public string attribute = null;
+        public bool resetAfterUse = true;
+        public bool returnValueWithAttribute = true;
     }
 
     internal sealed partial class FormatEntry : FormatValue
