@@ -252,6 +252,105 @@ namespace Microsoft.PowerShell.Commands.Internal.Format
         private bool _noGlobbing;
     }
 
+    internal class TextEffectEntryDefinition : HashtableEntryDefinition
+    {
+        internal TextEffectEntryDefinition() : base(FormatParameterDefinitionKeys.TextEffectEntryKey,
+            new Type[] { typeof(string), typeof(ScriptBlock)})
+        {
+        }
+
+        internal override Hashtable CreateHashtableFromSingleType(object val)
+        {
+            Hashtable hash = new Hashtable();
+
+            hash.Add(FormatParameterDefinitionKeys.TextEffectEntryKey, val);
+            return hash;
+        }
+
+        internal override object Verify(object val,
+                                        TerminatingErrorContext invocationContext,
+                                        bool originalParameterWasHashTable)
+        {
+            if (val == null)
+            {
+                return null;
+            }
+
+            // need to check the type:
+            // it can be a string or a script block
+            ScriptBlock sb = val as ScriptBlock;
+            if (sb != null)
+            {
+                PSPropertyExpression ex = new PSPropertyExpression(sb);
+                return ex;
+            }
+
+            string s = val as string;
+            if (s != null)
+            {
+                if (string.IsNullOrEmpty(s))
+                {
+                    ProcessEmptyStringError(originalParameterWasHashTable, invocationContext);
+                }
+
+                PSPropertyExpression ex = new PSPropertyExpression(s);
+
+                return ex;
+            }
+
+            PSTraceSource.NewArgumentException("val");
+            return null;
+        }
+
+        #region Error Processing
+
+        private void ProcessEmptyStringError(bool originalParameterWasHashTable,
+                                                TerminatingErrorContext invocationContext)
+        {
+            string msg;
+            string errorID;
+            if (originalParameterWasHashTable)
+            {
+                msg = StringUtil.Format(FormatAndOut_MshParameter.MshExEmptyStringHashError,
+                    this.KeyName);
+                errorID = "TextEffectEmptyString1";
+            }
+            else
+            {
+                msg = StringUtil.Format(FormatAndOut_MshParameter.MshExEmptyStringError);
+                errorID = "TextEffectEmptyString2";
+            }
+
+            ParameterProcessor.ThrowParameterBindingException(invocationContext, errorID, msg);
+        }
+
+/*
+        private void ProcessGlobbingCharactersError(bool originalParameterWasHashTable, string expression, TerminatingErrorContext invocationContext)
+        {
+            string msg;
+            string errorID;
+            if (originalParameterWasHashTable)
+            {
+                msg = StringUtil.Format(FormatAndOut_MshParameter.MshExGlobbingHashError,
+                    this.KeyName, expression);
+                errorID = "TextEffectGlobbing1";
+            }
+            else
+            {
+                msg = StringUtil.Format(FormatAndOut_MshParameter.MshExGlobbingStringError,
+                    expression);
+                errorID = "TextEffectGlobbing2";
+            }
+
+            ParameterProcessor.ThrowParameterBindingException(invocationContext, errorID, msg);
+        }
+        */
+
+        #endregion
+
+        // private bool _noGlobbing;
+    }
+
     internal class AlignmentEntryDefinition : HashtableEntryDefinition
     {
         internal AlignmentEntryDefinition() : base(FormatParameterDefinitionKeys.AlignmentEntryKey,
@@ -420,6 +519,7 @@ namespace Microsoft.PowerShell.Commands.Internal.Format
         // common entries
         internal const string ExpressionEntryKey = "expression";
         internal const string FormatStringEntryKey = "formatString";
+        internal const string TextEffectEntryKey = "texteffect";
 
         // specific to format-table
         internal const string AlignmentEntryKey = "alignment";
@@ -451,6 +551,7 @@ namespace Microsoft.PowerShell.Commands.Internal.Format
         {
             this.hashEntries.Add(new ExpressionEntryDefinition());
             this.hashEntries.Add(new FormatStringDefinition());
+            this.hashEntries.Add(new TextEffectEntryDefinition());
         }
     }
 
