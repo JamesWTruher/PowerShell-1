@@ -360,6 +360,21 @@ namespace Microsoft.PowerShell.Commands.Internal.Format
             return GetExpressionDisplayValue(so, enumerationLimit, ex, directive, out resolvedExpression);
         }
 
+        protected string TextEffectValue(PSObject so, PSPropertyExpression ex)
+        {
+            // PSPropertyExpressionResult resolvedExpression;
+            // return GetExpressionDisplayValue(so, 0, null, directive, out resolvedExpression);
+            // JWT
+            return GetTextExpressionValue(so, ex);
+        }
+
+        private string GetTextExpressionValue(PSObject so, PSPropertyExpression ex)
+        {
+            PSPropertyExpressionResult result;
+            string retVal = GetExpressionDisplayValue(so, 0, ex, null, out result);
+            return retVal;
+        }
+
         protected string GetExpressionDisplayValue(PSObject so, int enumerationLimit, PSPropertyExpression ex,
                     FieldFormattingDirective directive, out PSPropertyExpressionResult expressionResult)
         {

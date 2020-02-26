@@ -478,12 +478,17 @@ namespace Microsoft.PowerShell.Commands.Internal.Format
             {
                 FormatPropertyField fpf = new FormatPropertyField();
                 FieldFormattingDirective directive = null;
+                PSPropertyExpression textEffect = null;
                 if (activeAssociationList[k].OriginatingParameter != null)
                 {
                     directive = activeAssociationList[k].OriginatingParameter.GetEntry(FormatParameterDefinitionKeys.FormatStringEntryKey) as FieldFormattingDirective;
+                    textEffect = activeAssociationList[k].OriginatingParameter.GetEntry(FormatParameterDefinitionKeys.TextEffectEntryKey) as PSPropertyExpression;
                 }
 
                 fpf.propertyValue = this.GetExpressionDisplayValue(so, enumerationLimit, this.activeAssociationList[k].ResolvedExpression, directive);
+                if ( textEffect != null ) {
+                    fpf.textEffect = this.TextEffectValue(so, textEffect);
+                }
                 tre.formatPropertyFieldList.Add(fpf);
             }
 

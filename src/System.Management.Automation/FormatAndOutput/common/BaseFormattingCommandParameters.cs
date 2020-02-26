@@ -324,31 +324,8 @@ namespace Microsoft.PowerShell.Commands.Internal.Format
             ParameterProcessor.ThrowParameterBindingException(invocationContext, errorID, msg);
         }
 
-/*
-        private void ProcessGlobbingCharactersError(bool originalParameterWasHashTable, string expression, TerminatingErrorContext invocationContext)
-        {
-            string msg;
-            string errorID;
-            if (originalParameterWasHashTable)
-            {
-                msg = StringUtil.Format(FormatAndOut_MshParameter.MshExGlobbingHashError,
-                    this.KeyName, expression);
-                errorID = "TextEffectGlobbing1";
-            }
-            else
-            {
-                msg = StringUtil.Format(FormatAndOut_MshParameter.MshExGlobbingStringError,
-                    expression);
-                errorID = "TextEffectGlobbing2";
-            }
-
-            ParameterProcessor.ThrowParameterBindingException(invocationContext, errorID, msg);
-        }
-        */
-
         #endregion
 
-        // private bool _noGlobbing;
     }
 
     internal class AlignmentEntryDefinition : HashtableEntryDefinition
