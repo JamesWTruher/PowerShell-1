@@ -378,6 +378,9 @@ namespace System.Management.Automation
         /// <summary>Format string to apply</summary>
         public string FormatString { get; internal set; }
 
+        /// <summary>The script block to run for text effects</summary>
+        public string TextEffect { get; internal set; }
+
         /// <summary>
         /// Returns the value of the entry.
         /// </summary>
@@ -390,6 +393,14 @@ namespace System.Management.Automation
         /// <summary>Default constructor</summary>
         public TableControlColumn()
         {
+        }
+
+        internal TableControlColumn(string text, int alignment, bool isscriptblock, string formatString, string textEffect)
+        {
+            Alignment = (Alignment)alignment;
+            DisplayEntry = new DisplayEntry(text, isscriptblock ? DisplayEntryValueType.ScriptBlock : DisplayEntryValueType.Property);
+            FormatString = formatString;
+            TextEffect = textEffect;
         }
 
         internal TableControlColumn(string text, int alignment, bool isscriptblock, string formatString)

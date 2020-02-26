@@ -140,6 +140,7 @@ namespace Microsoft.PowerShell.Commands.Internal.Format
             internal const string ScriptBlockNode = "ScriptBlock";
             internal const string FormatStringNode = "FormatString";
             internal const string LabelNode = "Label";
+            internal const string TextEffectNode = "TextEffect";
 
             internal const string EntrySelectedByNode = "EntrySelectedBy";
             internal const string ItemSelectionConditionNode = "ItemSelectionCondition";
@@ -2095,6 +2096,11 @@ namespace Microsoft.PowerShell.Commands.Internal.Format
                             return false; // fatal error
                         }
                     }
+                    else if (_loader.MatchNodeName(n, XmlTags.TextEffectNode))
+                    {
+                        string textEffectString = _loader.GetMandatoryInnerText(n);
+                        _textEffect = new ExpressionToken(textEffectString, true);
+                    }
                     else if (_loader.MatchNodeNameWithAttributes(n, XmlTags.TextNode))
                     {
                         if (textNodeFound)
@@ -2171,9 +2177,12 @@ namespace Microsoft.PowerShell.Commands.Internal.Format
 
             internal ExpressionToken Expression { get { return _expression; } }
 
+            internal ExpressionToken TextEffect { get { return _textEffect; } }
+
             private string _formatString;
             private TextToken _textToken;
             private ExpressionToken _expression;
+            private ExpressionToken _textEffect;
 
             private TypeInfoDataBaseLoader _loader;
         }

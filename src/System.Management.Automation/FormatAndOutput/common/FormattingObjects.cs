@@ -360,8 +360,8 @@ namespace Microsoft.PowerShell.Commands.Internal.Format
         public string propertyValue {
             set { _propertyValue = value; }
             get {
-                if (returnValueWithAttribute && ! string.IsNullOrEmpty(attribute)) {
-                    return ("\u001b[" + attribute + "m" + _propertyValue + (resetAfterUse ? "\u001b[0m" : ""));
+                if (returnValueWithAttribute && ! string.IsNullOrEmpty(textEffect)) {
+                    return ("\u001b[" + textEffect + "m" + _propertyValue + (resetAfterUse ? "\u001b[0m" : ""));
                 }
                 else {
                     return _propertyValue;
@@ -369,7 +369,7 @@ namespace Microsoft.PowerShell.Commands.Internal.Format
             }
         }
         public int alignment = TextAlignment.Undefined;
-        public string attribute = null;
+        public string textEffect = null;
         public bool resetAfterUse = true;
         public bool returnValueWithAttribute = true;
     }

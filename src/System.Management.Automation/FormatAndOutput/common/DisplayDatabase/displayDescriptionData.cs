@@ -356,11 +356,17 @@ namespace Microsoft.PowerShell.Commands.Internal.Format
     internal sealed class FieldPropertyToken : PropertyTokenBase
     {
         internal FieldFormattingDirective fieldFormattingDirective = new FieldFormattingDirective();
+        internal FieldTextEffectDirective textEffectDirective= new FieldTextEffectDirective();
     }
 
     internal sealed class FieldFormattingDirective
     {
         internal string formatString = null; // optional
+    }
+
+    internal sealed class FieldTextEffectDirective
+    {
+        internal string textEffectString = null; //optional
     }
 
     #endregion Elementary Tokens
