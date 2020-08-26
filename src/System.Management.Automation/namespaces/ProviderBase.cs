@@ -1865,22 +1865,19 @@ namespace System.Management.Automation.Provider
 #if UNIX
 
                 // Add a commonstat structure to file system objects
-                if (ExperimentalFeature.IsEnabled("PSUnixFileStat") && ProviderInfo.ImplementingType == typeof(Microsoft.PowerShell.Commands.FileSystemProvider))
+                try
                 {
-                    try
-                    {
-                        // Use LStat because if you get a link, you want the information about the 
-                        // link, not the file.
-                        var commonStat = Platform.Unix.GetLStat(path);
-                        result.AddOrSetProperty("UnixStat", commonStat);
-                    }
-                    catch
-                    {
-                        // If there is *any* problem in retrieving the stat information
-                        // set the property to null. There is no specific exception which
-                        // would result in different behavior.
-                        result.AddOrSetProperty("UnixStat", value: null);
-                    }
+                    // Use LStat because if you get a link, you want the information about the 
+                    // link, not the file.
+                    var commonStat = Platform.Unix.GetLStat(path);
+                    result.AddOrSetProperty("UnixStat", commonStat);
+                }
+                catch
+                {
+                    // If there is *any* problem in retrieving the stat information
+                    // set the property to null. There is no specific exception which
+                    // would result in different behavior.
+                    result.AddOrSetProperty("UnixStat", value: null);
                 }
 #endif
             }

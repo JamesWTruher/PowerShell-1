@@ -26,8 +26,9 @@ Describe "Get-FormatData" -Tags "CI" {
             $format.TypeNames[0] | Should -BeExactly "System.IO.DirectoryInfo"
             $format.TypeNames[1] | Should -BeExactly "System.IO.FileInfo"
 
-            $isUnixStatEnabled = $EnabledExperimentalFeatures -contains 'PSUnixFileStat'
-            $format.FormatViewDefinition | Should -HaveCount ($isUnixStatEnabled ? 5 : 4)
+            # On Windows, we don't have the additional UnixStat format definition
+            $count = $IsWindows ? 4 : 5
+            $format.FormatViewDefinition | Should -HaveCount $count
         }
     }
 

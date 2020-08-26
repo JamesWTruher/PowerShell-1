@@ -1,26 +1,15 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 Describe "UnixFileSystem additions" -Tag "CI" {
-    # if PSUnixFileStat is converted from an experimental feature, these tests will need to be changed
     BeforeAll {
-        $experimentalFeatureName = "PSUnixFileStat"
-        $skipTest = -not $EnabledExperimentalFeatures.Contains($experimentalFeatureName)
+        # the UnixStat tests must be skipped on Windows
+        $skipTest = $IsWindows
         $PSDefaultParameterValues.Add('It:Skip', $skipTest)
     }
     AfterAll {
         $PSDefaultParameterValues.Remove('It:Skip')
     }
     Context "Basic Validation" {
-
-        It "Should be an experimental feature on non-Windows systems" {
-            $feature = Get-ExperimentalFeature -Name $experimentalFeatureName
-            if ( $IsWindows ) {
-                $feature | Should -BeNullOrEmpty
-            }
-            else {
-                $feature.Name | Should -Be $experimentalFeatureName
-            }
-        }
 
         It "Should include a UnixStat property" {
             $i = Get-Item ${TestDrive}
