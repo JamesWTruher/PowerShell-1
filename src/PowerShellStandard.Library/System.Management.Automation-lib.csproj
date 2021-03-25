@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(SNK_PATH)</AssemblyOriginatorKeyFile>
+    <AssemblyName>System.Management.Automation</AssemblyName>
+    <AssemblyVersion>3.0.0</AssemblyVersion>
+    <FileVersion>$(ASM_FILE_VERSION)</FileVersion>
+    <DelaySign>True</DelaySign>
+    <DefineConstants>RUNTIME_SERIALIZATION</DefineConstants>
+    <NuspecFile>./PowershellStandard.Library.nuspec</NuspecFile>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'" >
+    <PackageReference Include="System.IO.FileSystem.AccessControl" Version="4.5.0" />
+    <PackageReference Include="System.Security.AccessControl" Version="4.5.0" />
+    <PackageReference Include="System.Security.Permissions" Version="4.5.0" />
+    <PackageReference Include="System.Security.SecureString" Version="4.3.0" />
+    <PackageReference Include="System.Security.Principal" Version="4.3.0" />
+  </ItemGroup>
+</Project>
