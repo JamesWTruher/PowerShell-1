@@ -1801,7 +1801,8 @@ function New-ILNugetPackage
         "Microsoft.PowerShell.SDK.dll",
         "Microsoft.WSMan.Management.dll",
         "Microsoft.WSMan.Runtime.dll",
-        "System.Management.Automation.dll")
+        "System.Management.Automation.dll",
+        "PowerShellStandard.Library.nupkg")
 
     $linuxExceptionList = @(
         "Microsoft.Management.Infrastructure.CimCmdlets.dll",
@@ -1816,18 +1817,24 @@ function New-ILNugetPackage
         $SnkFilePath = "$RepoRoot\src\signing\visualstudiopublic.snk"
 
         New-ReferenceAssembly -linux64BinPath $LinuxFxdBinPath -RefAssemblyDestinationPath $refBinPath -RefAssemblyVersion $PackageVersion -SnkFilePath $SnkFilePath -GenAPIToolPath $GenAPIToolPath
+        # this builds 2 assemblies for netstandard2 and net425
+        New-PowerShellStandardAssembly -SnkFilePath $SnkFilePath -RefAssemblyVersion $PackageVersion
 
         foreach ($file in $fileList)
         {
             $tmpPackageRoot = New-TempFolder
             # Remove '.dll' at the end
             $fileBaseName = [System.IO.Path]::GetFileNameWithoutExtension($file)
+            # some of this does not pertain to PowerShellStandard, but it's harmless to do.
             $filePackageFolder = New-Item (Join-Path $tmpPackageRoot $fileBaseName) -ItemType Directory -Force
             $packageRuntimesFolder = New-Item (Join-Path $filePackageFolder.FullName 'runtimes') -ItemType Directory
 
             #region ref
-            $refFolder = New-Item (Join-Path $filePackageFolder.FullName "ref/$script:netCoreRuntime") -ItemType Directory -Force
-            CopyReferenceAssemblies -assemblyName $fileBaseName -refBinPath $refBinPath -refNugetPath $refFolder -assemblyFileList $fileList
+            # PowerShellStandard is the only library not built from the actual assembly so skip it here
+            if ($fileBaseName -ne 'PowerShellStandard.Library') {
+                $refFolder = New-Item (Join-Path $filePackageFolder.FullName "ref/$script:netCoreRuntime") -ItemType Directory -Force
+                CopyReferenceAssemblies -assemblyName $fileBaseName -refBinPath $refBinPath -refNugetPath $refFolder -assemblyFileList $fileList
+            }
             #endregion ref
 
             $packageRuntimesFolderPath = $packageRuntimesFolder.FullName
@@ -1964,6 +1971,15 @@ function New-ILNugetPackage
                 }
 
                 'System.Management.Automation' {
+                    $deps.Add([tuple]::Create([tuple]::Create('id', 'Microsoft.PowerShell.CoreCLR.Eventing'), [tuple]::Create('version', $PackageVersion))) > $null
+                    foreach($packageInfo in (Get-ProjectPackageInformation -ProjectName $fileBaseName))
+                    {
+                        $deps.Add([tuple]::Create([tuple]::Create('id', $packageInfo.Name), [tuple]::Create('version', $packageInfo.Version))) > $null
+                    }
+                }
+
+                'PowerShellStandard.Library' {
+                    # the dependencies for PowerShellStandard are the same as for System.Management.Automation
                     $deps.Add([tuple]::Create([tuple]::Create('id', 'Microsoft.PowerShell.CoreCLR.Eventing'), [tuple]::Create('version', $PackageVersion))) > $null
                     foreach($packageInfo in (Get-ProjectPackageInformation -ProjectName $fileBaseName))
                     {
@@ -2131,6 +2147,40 @@ function New-NuSpec {
     }
 
     $nuspecObj.Save($filePath)
+}
+
+<#
+.SYNOPSIS
+Create the PowerShellStandard assemblies
+
+.DESCRIPTION
+The PowerShell Standard assembly is compiled from source. This is similar
+to the System.Management.Automation.dll with additional exclusions.
+It creates two assemblies:
+- netstandard2.0
+- net425
+
+.PARAMETER SnkFilePath
+Path to the snk file for strong name signing.
+
+.PARAMETER RefAssemblyVersion
+Version of the reference assembly.
+
+#>
+
+function New-PowerShellStandardAssembly
+{
+    param (
+       [Parameter(Mandatory=$true)]
+       [string] $SnkFilePath,
+
+       [Parameter(Mandatory = $true)]
+       [string] $RefAssemblyVersion
+    )
+    Push-Location (Join-Path $RepoRoot "src/PowerShellStandard.Library")
+    Start-NativeExecution -sb { dotnet build --framework netstandard2.0 --configuration Release /property:ASM_FILE_VERSION=$RefAssemblyVersion /property:SNK_PATH=$SnkFilePath }
+    Start-NativeExecution -sb { dotnet build --framework net452 --configuration Release /property:ASM_FILE_VERSION=$RefAssemblyVersion /property:SNK_PATH=$SnkFilePath }
+    Pop-Location
 }
 
 <#
