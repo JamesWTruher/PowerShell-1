@@ -1801,8 +1801,8 @@ function New-ILNugetPackage
         "Microsoft.PowerShell.SDK.dll",
         "Microsoft.WSMan.Management.dll",
         "Microsoft.WSMan.Runtime.dll",
-        "System.Management.Automation.dll",
-        "PowerShellStandard.Library.nupkg")
+        "System.Management.Automation.dll"
+        )
 
     $linuxExceptionList = @(
         "Microsoft.Management.Infrastructure.CimCmdlets.dll",
@@ -1817,25 +1817,18 @@ function New-ILNugetPackage
         $SnkFilePath = "$RepoRoot\src\signing\visualstudiopublic.snk"
 
         New-ReferenceAssembly -linux64BinPath $LinuxFxdBinPath -RefAssemblyDestinationPath $refBinPath -RefAssemblyVersion $PackageVersion -SnkFilePath $SnkFilePath -GenAPIToolPath $GenAPIToolPath
-        # this builds 2 assemblies for netstandard2 and net425
-        New-PowerShellStandardAssembly -SnkFilePath $SnkFilePath -RefAssemblyVersion $PackageVersion
 
         foreach ($file in $fileList)
         {
             $tmpPackageRoot = New-TempFolder
             # Remove '.dll' at the end
             $fileBaseName = [System.IO.Path]::GetFileNameWithoutExtension($file)
-            # some of this does not pertain to PowerShellStandard, but it's harmless to do.
             $filePackageFolder = New-Item (Join-Path $tmpPackageRoot $fileBaseName) -ItemType Directory -Force
             $packageRuntimesFolder = New-Item (Join-Path $filePackageFolder.FullName 'runtimes') -ItemType Directory
 
             #region ref
-            # PowerShellStandard is the only library not built from the actual assembly so skip it here
-            if ($fileBaseName -ne 'PowerShellStandard.Library') {
-                $refFolder = New-Item (Join-Path $filePackageFolder.FullName "ref/$script:netCoreRuntime") -ItemType Directory -Force
-                CopyReferenceAssemblies -assemblyName $fileBaseName -refBinPath $refBinPath -refNugetPath $refFolder -assemblyFileList $fileList
-            }
-            #endregion ref
+            $refFolder = New-Item (Join-Path $filePackageFolder.FullName "ref/$script:netCoreRuntime") -ItemType Directory -Force
+            CopyReferenceAssemblies -assemblyName $fileBaseName -refBinPath $refBinPath -refNugetPath $refFolder -assemblyFileList $fileList
 
             $packageRuntimesFolderPath = $packageRuntimesFolder.FullName
 
@@ -1845,6 +1838,7 @@ function New-ILNugetPackage
             {
                 CreateNugetPlatformFolder -Platform 'unix' -PackageRuntimesFolder $packageRuntimesFolderPath -PlatformBinPath $LinuxFxdBinPath
             }
+            #endregion ref
 
             if ($file -eq "Microsoft.PowerShell.SDK.dll")
             {
@@ -1978,14 +1972,6 @@ function New-ILNugetPackage
                     }
                 }
 
-                'PowerShellStandard.Library' {
-                    # the dependencies for PowerShellStandard are the same as for System.Management.Automation
-                    $deps.Add([tuple]::Create([tuple]::Create('id', 'Microsoft.PowerShell.CoreCLR.Eventing'), [tuple]::Create('version', $PackageVersion))) > $null
-                    foreach($packageInfo in (Get-ProjectPackageInformation -ProjectName $fileBaseName))
-                    {
-                        $deps.Add([tuple]::Create([tuple]::Create('id', $packageInfo.Name), [tuple]::Create('version', $packageInfo.Version))) > $null
-                    }
-                }
             }
 
             New-NuSpec -PackageId $fileBaseName -PackageVersion $PackageVersion -Dependency $deps -FilePath (Join-Path $filePackageFolder.FullName "$fileBaseName.nuspec")
@@ -1995,6 +1981,16 @@ function New-ILNugetPackage
 
             New-NugetPackage -NuSpecPath $filePackageFolder.FullName -PackageDestinationPath $PackagePath
         }
+
+        # this creates the nuget package for PowerShellStandard
+        # the reason it's not part of the above code is that the assemblies don't
+        # match the package name (assumed above)
+        $stdPackageArgs = @{
+            SnkFilePath = $SnkFilePath
+            RefAssemblyVersion = $PackageVersion
+            PackageDestinationPath = $PackagePath
+        }
+        New-PowerShellStandardNugetPackage @stdPackageArgs
 
         if (Test-Path $refBinPath)
         {
@@ -2168,18 +2164,71 @@ Version of the reference assembly.
 
 #>
 
-function New-PowerShellStandardAssembly
+function New-PowerShellStandardNugetPackage
 {
     param (
        [Parameter(Mandatory=$true)]
        [string] $SnkFilePath,
 
        [Parameter(Mandatory = $true)]
-       [string] $RefAssemblyVersion
+       [string] $RefAssemblyVersion,
+
+       [Parameter(Mandatory = $true)]
+       [string]$packageDestinationPath
+
     )
-    Push-Location (Join-Path $RepoRoot "src/PowerShellStandard.Library")
-    Start-NativeExecution -sb { dotnet build --framework netstandard2.0 --configuration Release /property:ASM_FILE_VERSION=$RefAssemblyVersion /property:SNK_PATH=$SnkFilePath }
-    Start-NativeExecution -sb { dotnet build --framework net452 --configuration Release /property:ASM_FILE_VERSION=$RefAssemblyVersion /property:SNK_PATH=$SnkFilePath }
+    $packageName = "PowerShellStandard.Library"
+    $standardRoot = Join-Path $RepoRoot "src/${packageName}"
+    if (!(Test-Path $packageDestinationPath)) {
+        $null = New-Item -ItemType Directory $packageDestinationPath
+    }
+    $stagingDirPath = Join-Path ([System.IO.Path]::GetTempPath()) $packageName
+    $stagingDir = Get-Item $stagingDirPath -ErrorAction Ignore
+    if ($null -eq $stagingDir) {
+        $stagingDir = New-Item -ItemType Directory $stagingDirPath
+    }
+    # create and copy the PowerShell Standard assemblies
+    try {
+        Push-Location $standardRoot
+        $null = Start-NativeExecution -sb { dotnet build --framework netstandard2.0 --configuration Release /property:ASM_FILE_VERSION=$RefAssemblyVersion /property:SNK_PATH=$SnkFilePath }
+        $null = Start-NativeExecution -sb { dotnet build --framework net452 --configuration Release /property:ASM_FILE_VERSION=$RefAssemblyVersion /property:SNK_PATH=$SnkFilePath }
+        Copy-Item -Recurse bin\Release\* $stagingDirPath -exclude *.pdb,*.json
+    }
+    finally {
+        Pop-Location
+    }
+    # assemblies have been created, now create the nuget package
+
+    # don't add dependencies for the following
+    $excludedAssemblyNames = @(
+        "Microsoft.Management.Infrastructure",
+        "Microsoft.PowerShell.Native"
+    )
+    # the dependencies for PowerShellStandard are the same as for System.Management.Automation
+    $deps = [System.Collections.ArrayList]::new()
+    $deps.Add([tuple]::Create([tuple]::Create('id', 'Microsoft.PowerShell.CoreCLR.Eventing'), [tuple]::Create('version', $refAssemblyVersion))) > $null
+    # get dependencies of System.Management.Automation rather than the PowerShellStandard assembly
+    # because standard has no implementation, so the dependencies don't match the real thing.
+    $projectDependencies = Get-ProjectPackageInformation -ProjectName System.Management.Automation
+    foreach($packageInfo in $projectDependencies)
+    {
+        # faster to assign than redirect
+        if ($excludedAssemblyNames -notcontains $packageInfo.Name) {
+            $null = $deps.Add([tuple]::Create([tuple]::Create('id', $packageInfo.Name), [tuple]::Create('version', $packageInfo.Version)))
+        }
+    }
+
+    # Create the nuspec file
+    $nuspecPath = Join-Path $stagingDir.FullName "${projectName}.nuspec"
+    New-NuSpec -PackageId $packageName -PackageVersion $refAssemblyVersion -Dependency $deps -FilePath $nuspecPath
+
+    # Copy icon file to package
+    $stagingIconPath = Join-Path $stagingDir.FullName $iconFileName
+    Copy-Item -Path $iconPath -Destination $stagingIconPath -Verbose
+
+    # Create the nuget package
+    New-NugetPackage -NuSpecPath $stagingDirPath -PackageDestinationPath $packageDestinationPath
+
     Pop-Location
 }
 
