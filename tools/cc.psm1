@@ -60,10 +60,20 @@ function Start-CoverageRun
     $cArgs += $psexePath
     $cArgs += '--targetargs'
     if ( $tType -eq "elevated" ) {
-        $script = "import-module ./build.psm1;Start-PSPester -exclu @() -Tag ${elevationTag}"
+        if ( $IsWindows ) {
+            $script = "import-module ./build.psm1;Start-PSPester -exclu @() -Tag ${elevationTag}"
+        }
+        else {
+            $script = "import-module ./build.psm1;Start-PSPester -Sudo -Pass -exclu @() -Tag ${elevationTag}"
+        }
     }
     else {
-        $script = 'import-module ./build.psm1;Start-PSPester -unelevate -exclu @("RequireSudoOnUnix","RequireSudoOnUnix") -Tag CI,Feature,Slow'
+        if ( $IsWindows ) {
+            $script = 'import-module ./build.psm1;Start-PSPester -unelevate -exclu @("RequireSudoOnUnix","RequireSudoOnUnix") -Tag CI,Feature,Slow'
+        }
+        else {
+            $script = 'import-module ./build.psm1;Start-PSPester -exclu @("RequireSudoOnUnix","RequireSudoOnUnix") -Tag CI,Feature,Slow'
+        }
     }
     #; $result +=start-pspester -pass -sudo -Tag RequireSudoOnUnix -Exclude @()'
     $encodedCommand =  [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($script))
@@ -80,4 +90,5 @@ function Start-CoverageRun
     coverlet $cArgs
     # see if we have an xml file!
     Get-ChildItem *.xml
+    exit 0
 }
