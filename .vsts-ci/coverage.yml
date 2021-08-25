@@ -16,18 +16,18 @@ variables:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
   __SuppressAnsiEscapeSequences: 1
 
-resources:                              
-- repo: self                                       
-  clean: true                                                                                                
+resources:
+- repo: self
+  clean: true
 
-stages:                   
+stages:
 - stage: Linux
   displayName: Build and coverage for Linux
   jobs:
-  - job: linux_coverage
+  - job: linux_nonelevated_coverage
     pool:
       vmImage: ubuntu-18.04
-    displayName: Gather coverage for Linux 
+    displayName: Gather nonelevated coverage for Linux
 
     steps:
     - pwsh: |
@@ -46,6 +46,22 @@ stages:
       displayName: Collect non-elevated coverage
       condition: succeededOrFailed()
       continueOnError: true
+
+  - job: linux_elevated_coverage
+    pool:
+      vmImage: ubuntu-18.04
+    displayName: Gather elevated coverage for Linux
+
+    steps:
+    - pwsh: |
+        Import-Module ./tools/cc.psm1
+        Start-CoverageBootstrap
+      displayName: Boot strap builds and tools
+
+    - pwsh: |
+        Import-Module ./tools/cc.psm1
+        Start-CoverageBuild
+      displayName: build powershell
 
     - pwsh: |
         Import-Module ./tools/cc.psm1
