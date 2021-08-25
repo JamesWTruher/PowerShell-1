@@ -46,7 +46,8 @@ function Start-CoverageRun
     $cArgs += '--target'
     $cArgs += $psexePath
     $cArgs += '--targetargs'
-    $script = 'import-module ./build.psm1;$result = Start-PSPester -exclu @("RequireSudoOnUnix") -Tag CI,Feature,Slow; $result +=start-pspester -quiet -pas -sudo -Tag RequireSudoOnUnix -Exclude @()'
+    $script = 'import-module ./build.psm1;Start-PSPester -exclu @("RequireSudoOnUnix") -Tag CI,Feature,Slow'
+    #; $result +=start-pspester -pas-sudo -Tag RequireSudoOnUnix -Exclude @()'
     $encodedCommand =  [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($script))
     $cArgs += "-nopr -encodedcommand $encodedCommand"
     $cArgs += '--include=[Microsoft.PowerShell.Commands.Management]*,[Microsoft.PowerShell.Commands.Utility]*,[Microsoft.PowerShell.ConsoleHost]*,[Microsoft.PowerShell.MarkdownRender]*,[Microsoft.PowerShell.SDK]*,[Microsoft.PowerShell.Security]*,[System.Management.Automation]*,[pwsh]*'
@@ -59,4 +60,6 @@ function Start-CoverageRun
     $cARgs += '--include-test-assembly'
     $cArgs += $psexeDir
     coverlet $cArgs
+    # see if we have an xml file!
+    Get-ChildItem *.xml
 }
