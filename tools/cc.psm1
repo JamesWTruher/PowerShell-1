@@ -23,7 +23,20 @@ function Start-CoverageBuild
 
 function Start-CoverageRun
 {
-    param ( $platform )
+    param ( $tType )
+    if ( $IsLinux ) {
+        $platform = "Linux"
+        $elevationTag = "RequireSudoOnUnix"
+    }
+    elseif ( $IsMacOS ) {
+        $platform = "MacOS"
+        $elevationTag = "RequireSudoOnUnix"
+    }
+    else {
+        $platform = "Windows"
+        $elevationTag = "RequireAdminOnWindows"
+    }
+
     Import-Module ./build.psm1
     Restore-PSOptions
     # set up environment for running coverage
@@ -46,8 +59,13 @@ function Start-CoverageRun
     $cArgs += '--target'
     $cArgs += $psexePath
     $cArgs += '--targetargs'
-    $script = 'import-module ./build.psm1;Start-PSPester -exclu @("RequireSudoOnUnix") -Tag CI,Feature,Slow'
-    #; $result +=start-pspester -pas-sudo -Tag RequireSudoOnUnix -Exclude @()'
+    if ( $tType -eq "elevated" ) {
+        $script = "import-module ./build.psm1;Start-PSPester -exclu @() -Tag ${elevationTag}"
+    }
+    else {
+        $script = 'import-module ./build.psm1;Start-PSPester -unelevate -exclu @("RequireSudoOnUnix","RequireSudoOnUnix") -Tag CI,Feature,Slow'
+    }
+    #; $result +=start-pspester -pass -sudo -Tag RequireSudoOnUnix -Exclude @()'
     $encodedCommand =  [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($script))
     $cArgs += "-nopr -encodedcommand $encodedCommand"
     $cArgs += '--include=[Microsoft.PowerShell.Commands.Management]*,[Microsoft.PowerShell.Commands.Utility]*,[Microsoft.PowerShell.ConsoleHost]*,[Microsoft.PowerShell.MarkdownRender]*,[Microsoft.PowerShell.SDK]*,[Microsoft.PowerShell.Security]*,[System.Management.Automation]*,[pwsh]*'
@@ -56,7 +74,7 @@ function Start-CoverageRun
     $cArgs += '--format'
     $cArgs += 'opencover'
     $cArgs += '--output'
-    $cArgs += "${platform}-coverage"
+    $cArgs += "${platform}-${tType}-coverage"
     $cARgs += '--include-test-assembly'
     $cArgs += $psexeDir
     coverlet $cArgs

@@ -26,7 +26,7 @@ stages:
   jobs:
   - job: linux_coverage
     pool:
-      vmImage: ubuntu-16.04
+      vmImage: ubuntu-18.04
     displayName: Gather coverage for Linux 
 
     steps:
@@ -42,5 +42,10 @@ stages:
 
     - pwsh: |
         Import-Module ./tools/cc.psm1
-        Start-CoverageRun
-      displayName: Collect coverage
+        Start-CoverageRun -tType nonelevated
+      displayName: Collect non-elevated coverage
+
+    - pwsh: |
+        Import-Module ./tools/cc.psm1
+        Start-CoverageRun -tType elevated
+      displayName: Collect elevated coverage
