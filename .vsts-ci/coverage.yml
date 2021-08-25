@@ -44,8 +44,12 @@ stages:
         Import-Module ./tools/cc.psm1
         Start-CoverageRun -tType nonelevated
       displayName: Collect non-elevated coverage
+      condition: succeededOrFailed()
+      continueOnError: true
 
     - pwsh: |
         Import-Module ./tools/cc.psm1
         Start-CoverageRun -tType elevated
       displayName: Collect elevated coverage
+      condition: succeededOrFailed()
+      continueOnError: true
