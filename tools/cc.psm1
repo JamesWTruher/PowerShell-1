@@ -75,6 +75,7 @@ function Start-CoverageRun
             $script = 'import-module ./build.psm1;Start-PSPester -exclu @("RequireSudoOnUnix","RequireSudoOnUnix") -Tag CI,Feature,Slow'
         }
     }
+    $outputFilename = "${platform}-${tType}-coverage"
     #; $result +=start-pspester -pass -sudo -Tag RequireSudoOnUnix -Exclude @()'
     $encodedCommand =  [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($script))
     $cArgs += "-nopr -encodedcommand $encodedCommand"
@@ -84,11 +85,12 @@ function Start-CoverageRun
     $cArgs += '--format'
     $cArgs += 'opencover'
     $cArgs += '--output'
-    $cArgs += "${platform}-${tType}-coverage"
+    $cArgs += "$outputFilename"
     $cARgs += '--include-test-assembly'
     $cArgs += $psexeDir
     coverlet $cArgs
     # see if we have an xml file!
     Get-ChildItem *.xml
+    Write-Host "##vso[artifact.upload containerfolder=artifact;artifactname=artifact]${outputFileName}.xml"
     exit 0
 }
