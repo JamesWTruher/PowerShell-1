@@ -64,7 +64,7 @@ function Start-CoverageRun
             $script = "import-module ./build.psm1;Start-PSPester -exclu @() -Tag ${elevationTag}"
         }
         else {
-            $script = "import-module ./build.psm1;Start-PSPester -Sudo -Pass -exclu @() -Tag ${elevationTag}"
+            $script = "`$r = import-module ./build.psm1;Start-PSPester -Sudo -Pass -exclu @() -Tag ${elevationTag};sudo chown (id -u) /tmp/Mic* /tmp/System* /tmp/pwsh*"
         }
     }
     else {
