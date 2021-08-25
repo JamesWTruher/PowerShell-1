@@ -27,9 +27,18 @@ function Start-CoverageRun
     Import-Module ./build.psm1
     Restore-PSOptions
     # set up environment for running coverage
-    $dotnetRoot = [io.path]::GetDirectoryName((get-command dotnet).Source)
+    if ( $IsWindows ) {
+        $dotnetRoot = "$HOME/AppData/Local/Microsoft/dotnet"
+    }
+    else {
+        $dotnetRoot = "$HOME/.dotnet"
+    }
+    $env:PATH += [io.path]::PathSeparator + $dotnetRoot
     $env:PATH += [io.path]::PathSeparator + $dotnetRoot + "/tools"
     $env:DOTNET_ROOT = $dotnetRoot
+    # last check before starting coverage run
+    $null = Get-Command dotnet -ErrorAction Stop
+    $null = Get-Command coverlet -ErrorAction Stop
     # set up arguments for calling
     $psexePath = (Get-PSOptions).Output
     $psexeDir = [System.IO.Path]::GetDirectoryName($psexePath)
