@@ -300,10 +300,10 @@ class PSLogItem
         {
             $item.EventId = $subparts[0]
         }
-        else
-        {
-            Write-Warning -Message "Could not split EventId $($item.EventId) on '[] ' Count:$($subparts.Count) -> $content"
-        }
+        #else
+        #{
+        #    Write-Warning -Message "Could not split EventId $($item.EventId) on '[] ' Count:$($subparts.Count) -> $content"
+        #}
 
         # (commitid:TID:ChannelID)
         [char[]] $splitChars = ('(', ')', ':', ' ')
@@ -315,10 +315,10 @@ class PSLogItem
             $item.ThreadId = [int]::Parse($subparts[1], [System.Globalization.NumberStyles]::AllowHexSpecifier)
             $item.Channel = [int]::Parse($subparts[2])
         }
-        else
-        {
-            Write-Warning -Message "Could not split CommitId $($item.CommitId) on '(): ' Count:$($subparts.Count) -> $content"
-        }
+        #else
+        #{
+        #    Write-Warning -Message "Could not split CommitId $($item.CommitId) on '(): ' Count:$($subparts.Count) -> $content"
+        #}
 
         # nameid[PID]
         $splitChars = ('[',']',':')
@@ -329,10 +329,10 @@ class PSLogItem
             $item.LogId = $subparts[0]
             $item.ProcessId = [int]::Parse($subparts[1], [System.Globalization.NumberStyles]::AllowHexSpecifier)
         }
-        else
-        {
-            Write-Warning -Message "Could not split LogId $($item.LogId) on '[]:' Count:$($subparts.Count) -> $content"
-        }
+        #else
+        #{
+        #    Write-Warning -Message "Could not split LogId $($item.LogId) on '[]:' Count:$($subparts.Count) -> $content"
+        #}
 
         return $item
     }
@@ -449,10 +449,10 @@ class PSLogItem
                 $item.ThreadId = [int]::Parse($subparts[1], [System.Globalization.NumberStyles]::AllowHexSpecifier)
                 $item.Channel = [int]::Parse($subparts[2])
             }
-            else
-            {
-                Write-Warning -Message "Could not split CommitId $($item.CommitId) on '(): ' Count:$($subparts.Count)"
-            }
+            #else
+            #{
+            #    Write-Warning -Message "Could not split CommitId $($item.CommitId) on '(): ' Count:$($subparts.Count)"
+            #}
 
             # [EventId]
             $splitChars = ('[', ']', ' ')
@@ -462,10 +462,10 @@ class PSLogItem
             {
                 $item.EventId = $subparts[0]
             }
-            else
-            {
-                Write-Warning -Message "Could not split EventId $($item.EventId) on '[] ' Count:$($subparts.Count)"
-            }
+            #else
+            #{
+            #    Write-Warning -Message "Could not split EventId $($item.EventId) on '[] ' Count:$($subparts.Count)"
+            #}
 
             $result = $item
         } while ($false)
