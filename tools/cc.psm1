@@ -91,6 +91,8 @@ function Start-CoverageRun
     coverlet $cArgs
     # see if we have an xml file!
     Get-ChildItem *.xml
-    Write-Host "##vso[artifact.upload containerfolder=artifact;artifactname=artifact]${outputFileName}.opencover.xml"
+    $opencoverFile = Get-ChildItem "${outputFileName}.opencover.xml"
+    $opencoverFullName = $opencoverFile.FullName
+    Write-Host "##vso[artifact.upload containerfolder=artifact;artifactname=artifact]$opencoverFullName"
     exit 0
 }
