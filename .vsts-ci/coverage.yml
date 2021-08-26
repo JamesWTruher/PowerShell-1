@@ -21,7 +21,7 @@ resources:
   clean: true
 
 stages:
-- stage: Linux
+- stage: CoverageStage
   displayName: Build and coverage for Linux
   jobs:
   - job: linux_nonelevated_coverage
@@ -51,6 +51,52 @@ stages:
     pool:
       vmImage: ubuntu-18.04
     displayName: Gather elevated coverage for Linux
+
+    steps:
+    - pwsh: |
+        Import-Module ./tools/cc.psm1
+        Start-CoverageBootstrap
+      displayName: Boot strap builds and tools
+
+    - pwsh: |
+        Import-Module ./tools/cc.psm1
+        Start-CoverageBuild
+      displayName: build powershell
+
+    - pwsh: |
+        Import-Module ./tools/cc.psm1
+        Start-CoverageRun -tType elevated
+      displayName: Collect elevated coverage
+      condition: succeededOrFailed()
+      continueOnError: true
+
+  - job: macos_nonelevated_coverage
+    pool:
+      vmImage: macos-latest
+    displayName: Gather nonelevated coverage for MacOS
+
+    steps:
+    - pwsh: |
+        Import-Module ./tools/cc.psm1
+        Start-CoverageBootstrap
+      displayName: Boot strap builds and tools
+
+    - pwsh: |
+        Import-Module ./tools/cc.psm1
+        Start-CoverageBuild
+      displayName: build powershell
+
+    - pwsh: |
+        Import-Module ./tools/cc.psm1
+        Start-CoverageRun -tType nonelevated
+      displayName: Collect non-elevated coverage
+      condition: succeededOrFailed()
+      continueOnError: true
+
+  - job: macos_elevated_coverage
+    pool:
+      vmImage: macos-latest
+    displayName: Gather elevated coverage for MacOS
 
     steps:
     - pwsh: |

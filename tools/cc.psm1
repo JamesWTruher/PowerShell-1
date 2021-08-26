@@ -26,15 +26,15 @@ function Start-CoverageRun
     param ( $tType )
     if ( $IsLinux ) {
         $platform = "Linux"
-        $elevationTag = "RequireSudoOnUnix"
+        $eTag = "RequireSudoOnUnix"
     }
     elseif ( $IsMacOS ) {
         $platform = "MacOS"
-        $elevationTag = "RequireSudoOnUnix"
+        $eTag = "RequireSudoOnUnix"
     }
     else {
         $platform = "Windows"
-        $elevationTag = "RequireAdminOnWindows"
+        $eTag = "RequireAdminOnWindows"
     }
 
     Import-Module ./build.psm1
@@ -61,10 +61,10 @@ function Start-CoverageRun
     $cArgs += '--targetargs'
     if ( $tType -eq "elevated" ) {
         if ( $IsWindows ) {
-            $script = "import-module ./build.psm1;Start-PSPester -exclu @() -Tag ${elevationTag}"
+            $script = "import-module ./build.psm1;Start-PSPester -exclu @() -Tag ${eTag}"
         }
         else {
-            $script = "`$r = import-module ./build.psm1;Start-PSPester -Sudo -Pass -exclu @() -Tag ${elevationTag};sudo chown (id -u) /tmp/Mic* /tmp/System* /tmp/pwsh*"
+            $script = "import-module ./build.psm1;`$r=Start-PSPester -Sudo -Pass -exclu @() -Tag ${eTag};`$t=[io.path]::GetTempPath();sudo chown (id -u) `$t/Mic* `$t/System* `$t/pwsh*"
         }
     }
     else {
