@@ -1416,8 +1416,6 @@ namespace System.Management.Automation
 
         private List<VariableBreakpoint> GetVariableBreakpointsToTrigger(string variableName, bool read)
         {
-            Diagnostics.Assert(_context._debuggingMode == 1, "breakpoints only hit when debugging mode is 1");
-
             var functionContext = _callStack.LastFunctionContext();
             if (functionContext != null && functionContext._debuggerHidden)
             {

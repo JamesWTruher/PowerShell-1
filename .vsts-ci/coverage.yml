@@ -118,7 +118,7 @@ stages:
 
   - job: windows_nonelevated_coverage
     pool:
-      vmImage: vs2017-win2016
+      name: PowerShell1esCI
     displayName: Gather nonelevated coverage for Windows
 
     steps:
