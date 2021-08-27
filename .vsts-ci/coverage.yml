@@ -115,3 +115,49 @@ stages:
       displayName: Collect elevated coverage
       condition: succeededOrFailed()
       continueOnError: true
+
+  - job: windows_nonelevated_coverage
+    pool:
+      vmImage: vs2017-win2016
+    displayName: Gather nonelevated coverage for Windows
+
+    steps:
+    - pwsh: |
+        Import-Module ./tools/cc.psm1
+        Start-CoverageBootstrap
+      displayName: Boot strap builds and tools
+
+    - pwsh: |
+        Import-Module ./tools/cc.psm1
+        Start-CoverageBuild
+      displayName: build powershell
+
+    - pwsh: |
+        Import-Module ./tools/cc.psm1
+        Start-CoverageRun -tType nonelevated
+      displayName: Collect non-elevated coverage
+      condition: succeededOrFailed()
+      continueOnError: true
+
+  - job: windows_elevated_coverage
+    pool:
+      vmImage: vs2017-win2016
+    displayName: Gather elevated coverage for Windows
+
+    steps:
+    - pwsh: |
+        Import-Module ./tools/cc.psm1
+        Start-CoverageBootstrap
+      displayName: Boot strap builds and tools
+
+    - pwsh: |
+        Import-Module ./tools/cc.psm1
+        Start-CoverageBuild
+      displayName: build powershell
+
+    - pwsh: |
+        Import-Module ./tools/cc.psm1
+        Start-CoverageRun -tType elevated
+      displayName: Collect elevated coverage
+      condition: succeededOrFailed()
+      continueOnError: true
