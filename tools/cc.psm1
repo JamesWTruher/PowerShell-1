@@ -41,16 +41,20 @@ function Start-CoverageRun
     Restore-PSOptions
     # set up environment for running coverage
     if ( $IsWindows ) {
+        find-dotnet
         $dotnetRoot = "$HOME/AppData/Local/Microsoft/dotnet"
     }
     else {
         $dotnetRoot = "$HOME/.dotnet"
     }
+    $dotnetToolRoot = "$HOME/.dotnet/tools"
     $env:PATH += [io.path]::PathSeparator + $dotnetRoot
-    $env:PATH += [io.path]::PathSeparator + $dotnetRoot + "/tools"
+    $env:PATH += [io.path]::PathSeparator + $dotnetToolRoot
     $env:DOTNET_ROOT = $dotnetRoot
     # last check before starting coverage run
+    Get-Command dotnet
     $null = Get-Command dotnet -ErrorAction Stop
+    Get-Command coverlet
     $null = Get-Command coverlet -ErrorAction Stop
     # set up arguments for calling
     $psexePath = (Get-PSOptions).Output

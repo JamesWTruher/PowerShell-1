@@ -120,6 +120,7 @@ stages:
     pool:
       name: PowerShell1esCI
     displayName: Gather nonelevated coverage for Windows
+    timeoutInMinutes: 90
 
     steps:
     - pwsh: |
