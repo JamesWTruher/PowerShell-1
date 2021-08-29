@@ -73,7 +73,7 @@ function Start-CoverageRun
     }
     else {
         if ( $IsWindows ) {
-            $script = 'import-module ./build.psm1;Start-PSPester -unelevate -exclu @("RequireSudoOnUnix","RequireSudoOnUnix") -Tag CI,Feature,Slow'
+            $script = 'import-module ./build.psm1;Start-PSPester -exclu @("RequireSudoOnUnix","RequireSudoOnUnix") -Tag CI,Feature,Slow'
         }
         else {
             $script = 'import-module ./build.psm1;Start-PSPester -exclu @("RequireSudoOnUnix","RequireSudoOnUnix") -Tag CI,Feature,Slow'
