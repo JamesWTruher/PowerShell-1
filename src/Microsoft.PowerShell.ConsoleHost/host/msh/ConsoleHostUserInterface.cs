@@ -737,7 +737,7 @@ namespace Microsoft.PowerShell
 
             if (_parent.IsRunningAsync)
             {
-                Dbg.Assert(writer == _parent.OutputSerializer.textWriter, "writers should be the same");
+                // Dbg.Assert(writer == _parent.OutputSerializer.textWriter, "writers should be the same");
 
                 _parent.OutputSerializer.Serialize(value);
 
