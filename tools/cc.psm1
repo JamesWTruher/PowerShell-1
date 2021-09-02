@@ -63,21 +63,20 @@ function Start-CoverageRun
     $cArgs += '--target'
     $cArgs += $psexePath
     $cArgs += '--targetargs'
-    $outputPesterLog = "${platform}-${tType}-pester-tests.xml"
     if ( $tType -eq "elevated" ) {
         if ( $IsWindows ) {
-            $script = "import-module ./build.psm1;Start-PSPester -OutputFile ${outputPesterLog} -exclu @() -Tag ${eTag}"
+            $script = "import-module ./build.psm1;Start-PSPester -exclu @() -Tag ${eTag}"
         }
         else {
-            $script = "import-module ./build.psm1;`$r=Start-PSPester -OutputFile ${outputPesterLog} -Sudo -Pass -exclu @() -Tag ${eTag};`$t=[io.path]::GetTempPath();sudo chown (id -u) `$t/Mic* `$t/System* `$t/pwsh*"
+            $script = "import-module ./build.psm1;`$r=Start-PSPester -Sudo -Pass -exclu @() -Tag ${eTag};`$t=[io.path]::GetTempPath();sudo chown (id -u) `$t/Mic* `$t/System* `$t/pwsh*"
         }
     }
     else {
         if ( $IsWindows ) {
-            $script = 'import-module ./build.psm1;Start-PSPester -OutputFile ${outputPesterLog} -exclu @("RequireSudoOnUnix","RequireSudoOnUnix") -Tag CI,Feature,Slow'
+            $script = 'import-module ./build.psm1;Start-PSPester -exclu @("RequireSudoOnUnix","RequireSudoOnUnix") -Tag CI,Feature,Slow'
         }
         else {
-            $script = 'import-module ./build.psm1;Start-PSPester -OutputFile ${outputPesterLog} -exclu @("RequireSudoOnUnix","RequireSudoOnUnix") -Tag CI,Feature,Slow'
+            $script = 'import-module ./build.psm1;Start-PSPester -exclu @("RequireSudoOnUnix","RequireSudoOnUnix") -Tag CI,Feature,Slow'
         }
     }
     $outputFilename = "${platform}-${tType}-coverage"
@@ -97,7 +96,12 @@ function Start-CoverageRun
     # see if we have an xml file!
     Get-ChildItem *.xml
     $opencoverFile = Get-ChildItem "${outputFileName}.opencover.xml"
-    $opencoverFullName = $opencoverFile.FullName
+    $opencoverFullName = $opencoverFile.FullName 
     Write-Host "##vso[artifact.upload containerfolder=artifact;artifactname=artifact]$opencoverFullName"
+    $pesterArtifact = "${platform}-${tType}-pester.xml"
+    Copy-Item pester-tests.xml $pesterArtifact
+    $pesterArtifactPath = (Get-ChildItem $pesterArtifact).Fullname
+    Write-Host "##vso[artifact.upload containerfolder=artifact;artifactname=artifact]$pesterArtifactPath"
+
     exit 0
 }
