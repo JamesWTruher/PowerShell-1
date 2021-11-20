@@ -1,0 +1,1781 @@
+{
+  "Instrumentation": {
+    "Instrumenters": [ "TorchPointInstrumenter" ],
+    "StrongNameSigningPolicy": "KeepSignature",
+    "Parallelism": 1,
+    "Assemblies": {
+      "Include": [
+        {
+          "Path": {
+            "Wildcard": [
+              "System.Management.Automation.dll",
+              "Microsoft.PowerShell.*.dll",
+              "pwsh.dll",
+              "pwsh.exe"
+            ]
+          }
+        }
+      ],
+      "Exclude": [
+        {
+          "Path": {
+            "Wildcard": [
+              "Antlr3.Runtime.dll",
+              "apsecretstoremanaged.dll",
+              "Autofac.dll",
+              "AutoFixture.dll",
+              "AutoMapper.*",
+              "AWSSDK.*",
+              "BouncyCastle.*",
+              "Castle.Core.dll",
+              "CommandLine.dll",
+              "CommonServiceLocator.dll",
+              "concrt140.dll",
+              "Crc32C.NET.dll",
+              "CsvHelper.dll",
+              "Dapper.dll",
+              "DnsClient.dll",
+              "e_sqlite3.dll",
+              "EasyNetQ.dll",
+              "Elasticsearch.Net.dll",
+              "Exceptionless.dll",
+              "Fare.dll",
+              "FluentAssertions.dll",
+              "FluentValidation.dll",
+              "Fody.dll",
+              "FodyCommon.dll",
+              "FodyHelpers.dll",
+              "FodyIsolated.dll",
+              "Foundatio.dll",
+              "Google.*",
+              "GreenPipes.dll",
+              "Habanero.*",
+              "Hangfire.*",
+              "HtmlAgilityPack.dll",
+              "ICSharpCode.SharpZipLib.dll",
+              "IdentityModel.dll",
+              "ifxevents.dll",
+              "ifxevents_x86.dll",
+              "ifxhealth.dll",
+              "ifxhealth_x86.dll",
+              "ifxmetrics.dll",
+              "JetBrains.Annotations.dll",
+              "log4net.dll",
+              "MassTransit.dll",
+              "MessagePack.dll",
+              "Microsoft.AspNetCore.*",
+              "Microsoft.Bond.*",
+              "Microsoft.CSharp.dll",
+              "Microsoft.Data.Edm.*",
+              "Microsoft.Data.OData.*",
+              "Microsoft.Data.Services.*",
+              "Microsoft.Diagnostics.Tracing.EventSource.dll",
+              "Microsoft.DotNet.PlatformAbstractions.dll",
+              "Microsoft.EntityFrameworkCore.*",
+              "Microsoft.Extensions.*",
+              "Microsoft.IdentityModel.*",
+              "Microsoft.Net.Http.Headers.dll",
+              "Microsoft.OData.Client.*",
+              "Microsoft.OData.Core.*",
+              "Microsoft.OData.Edm.*",
+              "Microsoft.Practices.Unity.dll",
+              "Microsoft.Spatial.*",
+              "Microsoft.Torch.*",
+              "Microsoft.VisualStudio.*",
+              "Microsoft.Web.Infrastructure.dll",
+              "Microsoft.Win32.Primitives.dll",
+              "Microsoft.WindowsAzure.*",
+              "MimeKit.dll",
+              "MiNET.dll",
+              "MongoDB.*",
+              "Mono.Cecil.*",
+              "Moq.dll",
+              "msvcp140.dll",
+              "MvvmCross.dll",
+              "Namotion.Reflection.dll",
+              "NBitcoin.dll",
+              "Neo4j.Driver.dll",
+              "Neo4jClient.dll",
+              "NewId.dll",
+              "Newtonsoft.Json.*",
+              "Ninject.dll",
+              "Nito.*",
+              "NJsonSchema.dll",
+              "NLog.dll",
+              "NodaTime.dll",
+              "Npgsql.*",
+              "NServiceBus.Core.*",
+              "NSubstitute.dll",
+              "nunit.*",
+              "NUnit3.TestAdapter.dll",
+              "Owin.dll",
+              "Pipelines.Sockets.Unofficial.dll",
+              "Polly.dll",
+              "Portable.Text.Encoding.dll",
+              "RabbitMQ.Client.dll",
+              "Remotion.Linq.dll",
+              "RestSharp.dll",
+              "Rhino.Mocks.dll",
+              "Serilog.*",
+              "SharpCompress.dll",
+              "SimpleInjector.dll",
+              "Snappy.NET.dll",
+              "SQLitePCLRaw.*",
+              "StackExchange.Redis.dll",
+              "StyleCop.Analyzers.*",
+              "Swashbuckle.AspNetCore.*",
+              "System.*",
+              "tfx.dll",
+              "tfx_x86.dll",
+              "Unity.*",
+              "vcclient.dll",
+              "vcruntime140.dll",
+              "WebActivatorEx.dll",
+              "WebDriver.dll",
+              "WindowsAzureEventSource.dll",
+              "WindowsAzureTelemetryEvents.dll",
+              "xunit.*"
+            ]
+          }
+        }
+      ]
+    },
+    "Verification": {
+      "Enable": false,
+      "PEVerifyDirectory": "%peverifypath%",
+      "SucceedIfPEVerifyNotFound": true,
+      "MetadataOnly": true,
+      "Comparer": false,
+      "IgnoreReferenceErrors": false,
+      "PreVerifyAssemblies": true,
+      "PostVerifyAssemblies": true
+    }
+  },
+  "Instrumenters": [
+    {
+      "Name": "TorchPointInstrumenter",
+      "ServiceFabricInterleavingTorchPoints": false,
+      "ExternalAsyncInterleavingTorchPoints": false,
+      "TorchPointsInlining": false
+    }
+  ],
+  "Dispatcher": {
+    "Active": "always",
+    "Interceptors": [
+      "AsyncAwait",
+      "DataRace"
+    ]
+  },
+  "Interceptors": [
+    {
+      "Name": "AsyncAwait",
+      "Active": "always",
+      "ForceAwaitsAsynchronous": true,
+      "Methods": {
+        "Include": [
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Runtime.CompilerServices.*TaskAwaiter*IsCompleted.get()"
+              ]
+            }
+          }
+        ],
+        "Exclude": [
+          {
+            "Method": { "Wildcard": "System.IntPtr*" }
+          }
+        ]
+      }
+    },
+    {
+      "Name": "CoverageStats",
+      "Active": "always",
+      "CoverageLogParameters": {
+        "LogPath": "torch-coverage.torchlog",
+        "ConcurrencyWindow": 100
+      }
+    },
+    {
+      "Name": "DataRace",
+      "Active": "always",
+      "Algorithm": "LearnedHB",
+      "ThrowExceptionOnRace": false,
+      "BugLogPath": "torch-bugs.torchlog",
+      "TrapLogPath": "torch-traps.torchlog",
+      "PrePlanLogPath": "torch-preplans.torchlog",
+      "MultiRunMode": false,
+      "Algorithms": [
+        {
+          "Name": "LearnedHB",
+          "RandomSeed": 0
+        },
+        {
+          "Name": "Planned",
+          "RandomSeed": 0,
+          "TrapPlans": []
+        },
+        {
+          "Name": "Randomized",
+          "DelayProbability": 0.05,
+          "EnforceMaxDelayPerThread": true,
+          "MaxDelayPerThread": "20s",
+          "MaxDelayPerThreadPercentage": 0,
+          "MaxDelayPerTorchPoint": "100ms",
+          "RandomSeed": 0
+        }
+      ],
+      "Methods": {
+        "Include": [
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.IEnumerable.GetEnumerator(*)",
+                "System.Collections.IEnumerable.MemberwiseClone(*)"
+              ]
+            },
+            "Group": "System.Collections.IEnumerable",
+            "Kind": "Interface",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.ICollection.CopyTo(*)",
+                "System.Collections.ICollection.Count.get*",
+                "System.Collections.ICollection.GetEnumerator(*)",
+                "System.Collections.ICollection.MemberwiseClone(*)"
+              ]
+            },
+            "Group": "System.Collections.ICollection",
+            "Kind": "Interface",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.IEnumerable*.GetEnumerator(*)",
+                "System.Collections.Generic.IEnumerable*.MemberwiseClone(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.IEnumerable<>",
+            "Kind": "Interface",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.ICollection*.Contains(*)",
+                "System.Collections.Generic.ICollection*.CopyTo(*)",
+                "System.Collections.Generic.ICollection*.Count.get*",
+                "System.Collections.Generic.ICollection*.GetEnumerator(*)",
+                "System.Collections.Generic.ICollection*.MemberwiseClone(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.ICollection<>",
+            "Kind": "Interface",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.ICollection*.Add(*)",
+                "System.Collections.Generic.ICollection*.Clear(*)",
+                "System.Collections.Generic.ICollection*.Remove(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.ICollection<>",
+            "Kind": "Interface",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Specialized.NameObjectCollectionBase.KeysCollection.CopyTo(*)",
+                "System.Collections.Specialized.NameObjectCollectionBase.KeysCollection.Count.get*",
+                "System.Collections.Specialized.NameObjectCollectionBase.KeysCollection.Get(*)",
+                "System.Collections.Specialized.NameObjectCollectionBase.KeysCollection.GetEnumerator(*)",
+                "System.Collections.Specialized.NameObjectCollectionBase.KeysCollection.Item.get*",
+                "System.Collections.Specialized.NameObjectCollectionBase.KeysCollection.MemberwiseClone(*)"
+              ]
+            },
+            "Group": "System.Collections.Specialized.NameObjectCollectionBase.KeysCollection",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Specialized.NameObjectCollectionBase.KeysCollection.Item.set*"
+              ]
+            },
+            "Group": "System.Collections.Specialized.NameObjectCollectionBase.KeysCollection",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Specialized.NameObjectCollectionBase.BaseGet(*)",
+                "System.Collections.Specialized.NameObjectCollectionBase.BaseGetAllKeys(*)",
+                "System.Collections.Specialized.NameObjectCollectionBase.BaseGetAllValues(*)",
+                "System.Collections.Specialized.NameObjectCollectionBase.BaseGetKey(*)",
+                "System.Collections.Specialized.NameObjectCollectionBase.BaseHasKeys(*)",
+                "System.Collections.Specialized.NameObjectCollectionBase.CopyTo(*)",
+                "System.Collections.Specialized.NameObjectCollectionBase.Count.get*",
+                "System.Collections.Specialized.NameObjectCollectionBase.GetEnumerator(*)",
+                "System.Collections.Specialized.NameObjectCollectionBase.GetObjectData(*)",
+                "System.Collections.Specialized.NameObjectCollectionBase.Keys.get*",
+                "System.Collections.Specialized.NameObjectCollectionBase.MemberwiseClone(*)"
+              ]
+            },
+            "Group": "System.Collections.Specialized.NameObjectCollectionBase",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Specialized.NameObjectCollectionBase.BaseAdd(*)",
+                "System.Collections.Specialized.NameObjectCollectionBase.BaseClear(*)",
+                "System.Collections.Specialized.NameObjectCollectionBase.BaseRemove(*)",
+                "System.Collections.Specialized.NameObjectCollectionBase.BaseRemoveAt(*)",
+                "System.Collections.Specialized.NameObjectCollectionBase.BaseSet(*)"
+              ]
+            },
+            "Group": "System.Collections.Specialized.NameObjectCollectionBase",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Specialized.NameValueCollection.AllKeys.get*",
+                "System.Collections.Specialized.NameValueCollection.CopyTo(*)",
+                "System.Collections.Specialized.NameValueCollection.Count.get*",
+                "System.Collections.Specialized.NameValueCollection.Get(*)",
+                "System.Collections.Specialized.NameValueCollection.GetEnumerator(*)",
+                "System.Collections.Specialized.NameValueCollection.GetKey(*)",
+                "System.Collections.Specialized.NameValueCollection.GetObjectData(*)",
+                "System.Collections.Specialized.NameValueCollection.GetValues(*)",
+                "System.Collections.Specialized.NameValueCollection.HasKeys(*)",
+                "System.Collections.Specialized.NameValueCollection.Item.get*",
+                "System.Collections.Specialized.NameValueCollection.Keys.get*",
+                "System.Collections.Specialized.NameValueCollection.MemberwiseClone(*)"
+              ]
+            },
+            "Group": "System.Collections.Specialized.NameValueCollection",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Specialized.NameValueCollection.Add(*)",
+                "System.Collections.Specialized.NameValueCollection.Clear(*)",
+                "System.Collections.Specialized.NameValueCollection.InvalidateCachedArrays(*)",
+                "System.Collections.Specialized.NameValueCollection.Item.set*",
+                "System.Collections.Specialized.NameValueCollection.Remove(*)",
+                "System.Collections.Specialized.NameValueCollection.Set(*)"
+              ]
+            },
+            "Group": "System.Collections.Specialized.NameValueCollection",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.IList.Contains(*)",
+                "System.Collections.IList.CopyTo(*)",
+                "System.Collections.IList.Count.get*",
+                "System.Collections.IList.GetEnumerator(*)",
+                "System.Collections.IList.IndexOf(*)",
+                "System.Collections.IList.Item.get*",
+                "System.Collections.IList.MemberwiseClone(*)"
+              ]
+            },
+            "Group": "System.Collections.IList",
+            "Kind": "Interface",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.IList.Add(*)",
+                "System.Collections.IList.Clear(*)",
+                "System.Collections.IList.Insert(*)",
+                "System.Collections.IList.Item.set*",
+                "System.Collections.IList.Remove(*)",
+                "System.Collections.IList.RemoveAt(*)"
+              ]
+            },
+            "Group": "System.Collections.IList",
+            "Kind": "Interface",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.IReadOnlyList*.Count.get*",
+                "System.Collections.Generic.IReadOnlyList*.GetEnumerator(*)",
+                "System.Collections.Generic.IReadOnlyList*.Item.get*",
+                "System.Collections.Generic.IReadOnlyList*.MemberwiseClone(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.IReadOnlyList<>",
+            "Kind": "Interface",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.IReadOnlyCollection*.Count.get*",
+                "System.Collections.Generic.IReadOnlyCollection*.GetEnumerator(*)",
+                "System.Collections.Generic.IReadOnlyCollection*.MemberwiseClone(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.IReadOnlyCollection<>",
+            "Kind": "Interface",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.ObjectModel.ReadOnlyDictionary*.ContainsKey(*)",
+                "System.Collections.ObjectModel.ReadOnlyDictionary*.Count.get*",
+                "System.Collections.ObjectModel.ReadOnlyDictionary*.GetEnumerator(*)",
+                "System.Collections.ObjectModel.ReadOnlyDictionary*.Item.get*",
+                "System.Collections.ObjectModel.ReadOnlyDictionary*.Keys",
+                "System.Collections.ObjectModel.ReadOnlyDictionary*.MemberwiseClone(*)",
+                "System.Collections.ObjectModel.ReadOnlyDictionary*.TryGetValue(*)",
+                "System.Collections.ObjectModel.ReadOnlyDictionary*.Values"
+              ]
+            },
+            "Group": "System.Collections.ObjectModel.ReadOnlyDictionary<,>",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.ObjectModel.ReadOnlyDictionary*.KeyCollection.Add(*)",
+                "System.Collections.ObjectModel.ReadOnlyDictionary*.KeyCollection.Clear(*)",
+                "System.Collections.ObjectModel.ReadOnlyDictionary*.KeyCollection.Contains(*)",
+                "System.Collections.ObjectModel.ReadOnlyDictionary*.KeyCollection.CopyTo(*)",
+                "System.Collections.ObjectModel.ReadOnlyDictionary*.KeyCollection.Count.get*",
+                "System.Collections.ObjectModel.ReadOnlyDictionary*.KeyCollection.GetEnumerator(*)",
+                "System.Collections.ObjectModel.ReadOnlyDictionary*.KeyCollection.MemberwiseClone(*)",
+                "System.Collections.ObjectModel.ReadOnlyDictionary*.KeyCollection.Remove(*)"
+              ]
+            },
+            "Group": "System.Collections.ObjectModel.ReadOnlyDictionary<,>.KeyCollection",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.ObjectModel.ReadOnlyDictionary*.ValueCollection.Add(*)",
+                "System.Collections.ObjectModel.ReadOnlyDictionary*.ValueCollection.Clear(*)",
+                "System.Collections.ObjectModel.ReadOnlyDictionary*.ValueCollection.Contains(*)",
+                "System.Collections.ObjectModel.ReadOnlyDictionary*.ValueCollection.CopyTo(*)",
+                "System.Collections.ObjectModel.ReadOnlyDictionary*.ValueCollection.Count.get*",
+                "System.Collections.ObjectModel.ReadOnlyDictionary*.ValueCollection.GetEnumerator(*)",
+                "System.Collections.ObjectModel.ReadOnlyDictionary*.ValueCollection.MemberwiseClone(*)",
+                "System.Collections.ObjectModel.ReadOnlyDictionary*.ValueCollection.Remove(*)"
+              ]
+            },
+            "Group": "System.Collections.ObjectModel.ReadOnlyDictionary<,>.ValueCollection",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.ObjectModel.ReadOnlyCollection*.Count.get*",
+                "System.Collections.ObjectModel.ReadOnlyCollection*.GetEnumerator(*)",
+                "System.Collections.ObjectModel.ReadOnlyCollection*.Item.get*",
+                "System.Collections.ObjectModel.ReadOnlyCollection*.MemberwiseClone(*)"
+              ]
+            },
+            "Group": "System.Collections.ObjectModel.ReadOnlyCollection<>",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.IReadOnlyDictionary*.ContainsKey(*)",
+                "System.Collections.Generic.IReadOnlyDictionary*.Count.get*",
+                "System.Collections.Generic.IReadOnlyDictionary*.GetEnumerator(*)",
+                "System.Collections.Generic.IReadOnlyDictionary*.Item.get*",
+                "System.Collections.Generic.IReadOnlyDictionary*.Keys",
+                "System.Collections.Generic.IReadOnlyDictionary*.MemberwiseClone(*)",
+                "System.Collections.Generic.IReadOnlyDictionary*.TryGetValue(*)",
+                "System.Collections.Generic.IReadOnlyDictionary*.Values"
+              ]
+            },
+            "Group": "System.Collections.Generic.IReadOnlyDictionary<>",
+            "Kind": "Interface",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.IList*.Contains(*)",
+                "System.Collections.Generic.IList*.CopyTo(*)",
+                "System.Collections.Generic.IList*.Count.get*",
+                "System.Collections.Generic.IList*.GetEnumerator(*)",
+                "System.Collections.Generic.IList*.IndexOf(*)",
+                "System.Collections.Generic.IList*.Item.get*",
+                "System.Collections.Generic.IList*.MemberwiseClone(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.IList<>",
+            "Kind": "Interface",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.IList*.Add(*)",
+                "System.Collections.Generic.IList*.Clear(*)",
+                "System.Collections.Generic.IList*.Insert(*)",
+                "System.Collections.Generic.IList*.Item.set*",
+                "System.Collections.Generic.IList*.Remove(*)",
+                "System.Collections.Generic.IList*.RemoveAt(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.IList<>",
+            "Kind": "Interface",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.Dictionary*.KeyCollection.Contains(*)",
+                "System.Collections.Generic.Dictionary*.KeyCollection.CopyTo(*)",
+                "System.Collections.Generic.Dictionary*.KeyCollection.Count.get*",
+                "System.Collections.Generic.Dictionary*.KeyCollection.GetEnumerator(*)",
+                "System.Collections.Generic.Dictionary*.KeyCollection.MemberwiseClone(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.Dictionary<,>.KeyCollection",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.Dictionary*.KeyCollection.Add(*)",
+                "System.Collections.Generic.Dictionary*.KeyCollection.Clear(*)",
+                "System.Collections.Generic.Dictionary*.KeyCollection.Remove(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.Dictionary<,>.KeyCollection",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.Dictionary*.ValueCollection.Contains(*)",
+                "System.Collections.Generic.Dictionary*.ValueCollection.CopyTo(*)",
+                "System.Collections.Generic.Dictionary*.ValueCollection.Count.get*",
+                "System.Collections.Generic.Dictionary*.ValueCollection.GetEnumerator(*)",
+                "System.Collections.Generic.Dictionary*.ValueCollection.MemberwiseClone(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.Dictionary<,>.ValueCollection",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.Dictionary*.ValueCollection.Add(*)",
+                "System.Collections.Generic.Dictionary*.ValueCollection.Clear(*)",
+                "System.Collections.Generic.Dictionary*.ValueCollection.Remove(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.Dictionary<,>.ValueCollection",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.Dictionary*.Contains(*)",
+                "System.Collections.Generic.Dictionary*.ContainsKey(*)",
+                "System.Collections.Generic.Dictionary*.ContainsValue(*)",
+                "System.Collections.Generic.Dictionary*.CopyTo(*)",
+                "System.Collections.Generic.Dictionary*.Count.get*",
+                "System.Collections.Generic.Dictionary*.GetEnumerator(*)",
+                "System.Collections.Generic.Dictionary*.GetObjectData(*)",
+                "System.Collections.Generic.Dictionary*.Item.get*",
+                "System.Collections.Generic.Dictionary*.Keys.get*",
+                "System.Collections.Generic.Dictionary*.MemberwiseClone(*)",
+                "System.Collections.Generic.Dictionary*.TryGetValue(*)",
+                "System.Collections.Generic.Dictionary*.Values.get*"
+              ]
+            },
+            "Group": "System.Collections.Generic.Dictionary<,>",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.Dictionary*.Add(*)",
+                "System.Collections.Generic.Dictionary*.Clear(*)",
+                "System.Collections.Generic.Dictionary*.EnsureCapacity(*)",
+                "System.Collections.Generic.Dictionary*.Item.set*",
+                "System.Collections.Generic.Dictionary*.Remove(*)",
+                "System.Collections.Generic.Dictionary*.TrimExcess(*)",
+                "System.Collections.Generic.Dictionary*.TryAdd(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.Dictionary<,>",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.SortedDictionary*.KeyCollection.Contains(*)",
+                "System.Collections.Generic.SortedDictionary*.KeyCollection.CopyTo(*)",
+                "System.Collections.Generic.SortedDictionary*.KeyCollection.Count.get*",
+                "System.Collections.Generic.SortedDictionary*.KeyCollection.GetEnumerator(*)",
+                "System.Collections.Generic.SortedDictionary*.KeyCollection.MemberwiseClone(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.SortedDictionary<,>.KeyCollection",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.SortedDictionary*.KeyCollection.Add(*)",
+                "System.Collections.Generic.SortedDictionary*.KeyCollection.Clear(*)",
+                "System.Collections.Generic.SortedDictionary*.KeyCollection.Remove(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.SortedDictionary<,>.KeyCollection",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.SortedDictionary*.ValueCollection.Contains(*)",
+                "System.Collections.Generic.SortedDictionary*.ValueCollection.CopyTo(*)",
+                "System.Collections.Generic.SortedDictionary*.ValueCollection.Count.get*",
+                "System.Collections.Generic.SortedDictionary*.ValueCollection.GetEnumerator(*)",
+                "System.Collections.Generic.SortedDictionary*.ValueCollection.MemberwiseClone(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.SortedDictionary<,>.ValueCollection",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.SortedDictionary*.ValueCollection.Add(*)",
+                "System.Collections.Generic.SortedDictionary*.ValueCollection.Clear(*)",
+                "System.Collections.Generic.SortedDictionary*.ValueCollection.Remove(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.SortedDictionary<,>.ValueCollection",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.SortedDictionary*.Contains(*)",
+                "System.Collections.Generic.SortedDictionary*.ContainsKey(*)",
+                "System.Collections.Generic.SortedDictionary*.ContainsValue(*)",
+                "System.Collections.Generic.SortedDictionary*.CopyTo(*)",
+                "System.Collections.Generic.SortedDictionary*.Count.get*",
+                "System.Collections.Generic.SortedDictionary*.GetEnumerator(*)",
+                "System.Collections.Generic.SortedDictionary*.GetObjectData(*)",
+                "System.Collections.Generic.SortedDictionary*.Item.get*",
+                "System.Collections.Generic.SortedDictionary*.Keys.get*",
+                "System.Collections.Generic.SortedDictionary*.MemberwiseClone(*)",
+                "System.Collections.Generic.SortedDictionary*.TryGetValue(*)",
+                "System.Collections.Generic.SortedDictionary*.Values.get*"
+              ]
+            },
+            "Group": "System.Collections.Generic.SortedDictionary<,>",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.SortedDictionary*.Add(*)",
+                "System.Collections.Generic.SortedDictionary*.Clear(*)",
+                "System.Collections.Generic.SortedDictionary*.EnsureCapacity(*)",
+                "System.Collections.Generic.SortedDictionary*.Item.set*",
+                "System.Collections.Generic.SortedDictionary*.Remove(*)",
+                "System.Collections.Generic.SortedDictionary*.TryAdd(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.SortedDictionary<,>",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.IDictionary*.Contains(*)",
+                "System.Collections.Generic.IDictionary*.ContainsKey(*)",
+                "System.Collections.Generic.IDictionary*.CopyTo(*)",
+                "System.Collections.Generic.IDictionary*.Count.get*",
+                "System.Collections.Generic.IDictionary*.GetEnumerator(*)",
+                "System.Collections.Generic.IDictionary*.Item.get*",
+                "System.Collections.Generic.IDictionary*.Keys.get*",
+                "System.Collections.Generic.IDictionary*.MemberwiseClone(*)",
+                "System.Collections.Generic.IDictionary*.TryGetValue(*)",
+                "System.Collections.Generic.IDictionary*.Values.get*"
+              ]
+            },
+            "Group": "System.Collections.Generic.IDictionary<,>",
+            "Kind": "Interface",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.IDictionary*.Add(*)",
+                "System.Collections.Generic.IDictionary*.Clear(*)",
+                "System.Collections.Generic.IDictionary*.Item.set*",
+                "System.Collections.Generic.IDictionary*.Remove(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.IDictionary<,>",
+            "Kind": "Interface",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.IDictionary.Contains(*)",
+                "System.Collections.IDictionary.CopyTo(*)",
+                "System.Collections.IDictionary.Count.get*",
+                "System.Collections.IDictionary.GetEnumerator(*)",
+                "System.Collections.IDictionary.Item.get*",
+                "System.Collections.IDictionary.Keys.get*",
+                "System.Collections.IDictionary.MemberwiseClone(*)",
+                "System.Collections.IDictionary.Values.get*"
+              ]
+            },
+            "Group": "System.Collections.IDictionary",
+            "Kind": "Interface",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.IDictionary.Add(*)",
+                "System.Collections.IDictionary.Clear(*)",
+                "System.Collections.IDictionary.Item.set*",
+                "System.Collections.IDictionary.Remove(*)"
+              ]
+            },
+            "Group": "System.Collections.IDictionary",
+            "Kind": "Interface",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Specialized.ListDictionary.Contains(*)",
+                "System.Collections.Specialized.ListDictionary.CopyTo(*)",
+                "System.Collections.Specialized.ListDictionary.Count.get*",
+                "System.Collections.Specialized.ListDictionary.GetEnumerator(*)",
+                "System.Collections.Specialized.ListDictionary.Item.get*",
+                "System.Collections.Specialized.ListDictionary.Keys.get*",
+                "System.Collections.Specialized.ListDictionary.MemberwiseClone(*)",
+                "System.Collections.Specialized.ListDictionary.Values.get*"
+              ]
+            },
+            "Group": "System.Collections.Specialized.ListDictionary",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Specialized.ListDictionary.Add(*)",
+                "System.Collections.Specialized.ListDictionary.Clear(*)",
+                "System.Collections.Specialized.ListDictionary.Item.set*",
+                "System.Collections.Specialized.ListDictionary.Remove(*)"
+              ]
+            },
+            "Group": "System.Collections.Specialized.ListDictionary",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Specialized.IOrderedDictionary.Contains(*)",
+                "System.Collections.Specialized.IOrderedDictionary.CopyTo(*)",
+                "System.Collections.Specialized.IOrderedDictionary.Count.get*",
+                "System.Collections.Specialized.IOrderedDictionary.GetEnumerator(*)",
+                "System.Collections.Specialized.IOrderedDictionary.Item.get*",
+                "System.Collections.Specialized.IOrderedDictionary.Keys.get*",
+                "System.Collections.Specialized.IOrderedDictionary.MemberwiseClone(*)",
+                "System.Collections.Specialized.IOrderedDictionary.Values.get*"
+              ]
+            },
+            "Group": "System.Collections.Specialized.IOrderedDictionary",
+            "Kind": "Interface",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Specialized.IOrderedDictionary.Add(*)",
+                "System.Collections.Specialized.IOrderedDictionary.Clear(*)",
+                "System.Collections.Specialized.IOrderedDictionary.Insert(*)",
+                "System.Collections.Specialized.IOrderedDictionary.Item.set*",
+                "System.Collections.Specialized.IOrderedDictionary.Remove(*)",
+                "System.Collections.Specialized.IOrderedDictionary.RemoveAt(*)"
+              ]
+            },
+            "Group": "System.Collections.Specialized.IOrderedDictionary",
+            "Kind": "Interface",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Specialized.OrderedDictionary.AsReadOnly(*)",
+                "System.Collections.Specialized.OrderedDictionary.Contains(*)",
+                "System.Collections.Specialized.OrderedDictionary.CopyTo(*)",
+                "System.Collections.Specialized.OrderedDictionary.Count.get*",
+                "System.Collections.Specialized.OrderedDictionary.GetEnumerator(*)",
+                "System.Collections.Specialized.OrderedDictionary.GetObjectData(*)",
+                "System.Collections.Specialized.OrderedDictionary.Item.get*",
+                "System.Collections.Specialized.OrderedDictionary.Keys.get*",
+                "System.Collections.Specialized.OrderedDictionary.MemberwiseClone(*)",
+                "System.Collections.Specialized.OrderedDictionary.Values.get*"
+              ]
+            },
+            "Group": "System.Collections.Specialized.OrderedDictionary",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Specialized.OrderedDictionary.Add(*)",
+                "System.Collections.Specialized.OrderedDictionary.Clear(*)",
+                "System.Collections.Specialized.OrderedDictionary.Insert(*)",
+                "System.Collections.Specialized.OrderedDictionary.Item.set*",
+                "System.Collections.Specialized.OrderedDictionary.Remove(*)",
+                "System.Collections.Specialized.OrderedDictionary.RemoveAt(*)"
+              ]
+            },
+            "Group": "System.Collections.Specialized.OrderedDictionary",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.Queue*.Clone(*)",
+                "System.Collections.Generic.Queue*.Contains(*)",
+                "System.Collections.Generic.Queue*.CopyTo(*)",
+                "System.Collections.Generic.Queue*.Count.get*",
+                "System.Collections.Generic.Queue*.GetEnumerator(*)",
+                "System.Collections.Generic.Queue*.MemberwiseClone(*)",
+                "System.Collections.Generic.Queue*.Peek(*)",
+                "System.Collections.Generic.Queue*.ToArray(*)",
+                "System.Collections.Generic.Queue*.TryPeek(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.Queue<>",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.Queue*.Clear(*)",
+                "System.Collections.Generic.Queue*.Dequeue(*)",
+                "System.Collections.Generic.Queue*.Enqueue(*)",
+                "System.Collections.Generic.Queue*.TrimExcess(*)",
+                "System.Collections.Generic.Queue*.TryDequeue(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.Queue<>",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.List*.AsReadOnly(*)",
+                "System.Collections.Generic.List*.BinarySearch(*)",
+                "System.Collections.Generic.List*.Capacity.get*",
+                "System.Collections.Generic.List*.Contains(*)",
+                "System.Collections.Generic.List*.ConvertAll*(*)",
+                "System.Collections.Generic.List*.CopyTo(*)",
+                "System.Collections.Generic.List*.Count.get*",
+                "System.Collections.Generic.List*.Exists(*)",
+                "System.Collections.Generic.List*.Find(*)",
+                "System.Collections.Generic.List*.FindAll(*)",
+                "System.Collections.Generic.List*.FindIndex(*)",
+                "System.Collections.Generic.List*.FindLast(*)",
+                "System.Collections.Generic.List*.FindLastIndex(*)",
+                "System.Collections.Generic.List*.ForEach(*)",
+                "System.Collections.Generic.List*.GetEnumerator(*)",
+                "System.Collections.Generic.List*.GetRange(*)",
+                "System.Collections.Generic.List*.IndexOf(*)",
+                "System.Collections.Generic.List*.Item.get*",
+                "System.Collections.Generic.List*.LastIndexOf(*)",
+                "System.Collections.Generic.List*.MemberwiseClone(*)",
+                "System.Collections.Generic.List*.ToArray(*)",
+                "System.Collections.Generic.List*.TrueForAll(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.List<>",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.List*.Add(*)",
+                "System.Collections.Generic.List*.AddRange(*)",
+                "System.Collections.Generic.List*.Capacity.set*",
+                "System.Collections.Generic.List*.Clear(*)",
+                "System.Collections.Generic.List*.Insert(*)",
+                "System.Collections.Generic.List*.InsertRange(*)",
+                "System.Collections.Generic.List*.Item.set*",
+                "System.Collections.Generic.List*.Remove(*)",
+                "System.Collections.Generic.List*.RemoveAll(*)",
+                "System.Collections.Generic.List*.RemoveAt(*)",
+                "System.Collections.Generic.List*.RemoveRange(*)",
+                "System.Collections.Generic.List*.Reverse(*)",
+                "System.Collections.Generic.List*.Sort(*)",
+                "System.Collections.Generic.List*.TrimExcess(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.List<>",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.LinkedList*.Contains(*)",
+                "System.Collections.Generic.LinkedList*.CopyTo(*)",
+                "System.Collections.Generic.LinkedList*.Count.get*",
+                "System.Collections.Generic.LinkedList*.Find(*)",
+                "System.Collections.Generic.LinkedList*.FindLast(*)",
+                "System.Collections.Generic.LinkedList*.First.get*",
+                "System.Collections.Generic.LinkedList*.GetEnumerator(*)",
+                "System.Collections.Generic.LinkedList*.GetObjectData(*)",
+                "System.Collections.Generic.LinkedList*.Last.get*",
+                "System.Collections.Generic.LinkedList*.MemberwiseClone(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.LinkedList<>",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.LinkedList*.Add(*)",
+                "System.Collections.Generic.LinkedList*.AddAfter(*)",
+                "System.Collections.Generic.LinkedList*.AddBefore(*)",
+                "System.Collections.Generic.LinkedList*.AddFirst(*)",
+                "System.Collections.Generic.LinkedList*.Clear(*)",
+                "System.Collections.Generic.LinkedList*.Remove(*)",
+                "System.Collections.Generic.LinkedList*.RemoveFirst(*)",
+                "System.Collections.Generic.LinkedList*.RemoveLast(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.LinkedList<>",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.HashSet*.Contains(*)",
+                "System.Collections.Generic.HashSet*.CopyTo(*)",
+                "System.Collections.Generic.HashSet*.Count.get*",
+                "System.Collections.Generic.HashSet*.GetEnumerator(*)",
+                "System.Collections.Generic.HashSet*.GetObjectData(*)",
+                "System.Collections.Generic.HashSet*.IsProperSubsetOf(*)",
+                "System.Collections.Generic.HashSet*.IsProperSupersetOf(*)",
+                "System.Collections.Generic.HashSet*.IsSubsetOf(*)",
+                "System.Collections.Generic.HashSet*.IsSupersetOf(*)",
+                "System.Collections.Generic.HashSet*.MemberwiseClone(*)",
+                "System.Collections.Generic.HashSet*.Overlaps(*)",
+                "System.Collections.Generic.HashSet*.SetEquals(*)",
+                "System.Collections.Generic.HashSet*.TryGetValue(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.HashSet<>",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.HashSet*.Add(*)",
+                "System.Collections.Generic.HashSet*.Clear(*)",
+                "System.Collections.Generic.HashSet*.EnsureCapacity(*)",
+                "System.Collections.Generic.HashSet*.ExceptWith(*)",
+                "System.Collections.Generic.HashSet*.IntersectWith(*)",
+                "System.Collections.Generic.HashSet*.Remove(*)",
+                "System.Collections.Generic.HashSet*.RemoveWhere(*)",
+                "System.Collections.Generic.HashSet*.SymmetricExceptWith(*)",
+                "System.Collections.Generic.HashSet*.TrimExcess(*)",
+                "System.Collections.Generic.HashSet*.UnionWith(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.HashSet<>",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.Stack*.Clone(*)",
+                "System.Collections.Generic.Stack*.Contains(*)",
+                "System.Collections.Generic.Stack*.CopyTo(*)",
+                "System.Collections.Generic.Stack*.Count.get*",
+                "System.Collections.Generic.Stack*.GetEnumerator(*)",
+                "System.Collections.Generic.Stack*.MemberwiseClone(*)",
+                "System.Collections.Generic.Stack*.Peek(*)",
+                "System.Collections.Generic.Stack*.ToArray(*)",
+                "System.Collections.Generic.Stack*.TryPeek(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.Stack<>",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.Stack*.Clear(*)",
+                "System.Collections.Generic.Stack*.Pop(*)",
+                "System.Collections.Generic.Stack*.Push(*)",
+                "System.Collections.Generic.Stack*.TrimExcess(*)",
+                "System.Collections.Generic.Stack*.TryPop(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.Stack<>",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.ISet*.Contains(*)",
+                "System.Collections.Generic.ISet*.CopyTo(*)",
+                "System.Collections.Generic.ISet*.Count.get*",
+                "System.Collections.Generic.ISet*.GetEnumerator(*)",
+                "System.Collections.Generic.ISet*.IsProperSubsetOf(*)",
+                "System.Collections.Generic.ISet*.IsProperSupersetOf(*)",
+                "System.Collections.Generic.ISet*.IsSubsetOf(*)",
+                "System.Collections.Generic.ISet*.IsSupersetOf(*)",
+                "System.Collections.Generic.ISet*.MemberwiseClone(*)",
+                "System.Collections.Generic.ISet*.Overlaps(*)",
+                "System.Collections.Generic.ISet*.SetEquals(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.ISet<>",
+            "Kind": "Interface",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.ISet*.Add(*)",
+                "System.Collections.Generic.ISet*.Clear(*)",
+                "System.Collections.Generic.ISet*.ExceptWith(*)",
+                "System.Collections.Generic.ISet*.IntersectWith(*)",
+                "System.Collections.Generic.ISet*.Remove(*)",
+                "System.Collections.Generic.ISet*.SymmetricExceptWith(*)",
+                "System.Collections.Generic.ISet*.UnionWith(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.ISet<>",
+            "Kind": "Interface",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.SortedSet*.Contains(*)",
+                "System.Collections.Generic.SortedSet*.CopyTo(*)",
+                "System.Collections.Generic.SortedSet*.Count.get*",
+                "System.Collections.Generic.SortedSet*.GetEnumerator(*)",
+                "System.Collections.Generic.SortedSet*.GetObjectData(*)",
+                "System.Collections.Generic.SortedSet*.GetViewBetween(*)",
+                "System.Collections.Generic.SortedSet*.IsProperSubsetOf(*)",
+                "System.Collections.Generic.SortedSet*.IsProperSupersetOf(*)",
+                "System.Collections.Generic.SortedSet*.IsSubsetOf(*)",
+                "System.Collections.Generic.SortedSet*.IsSupersetOf(*)",
+                "System.Collections.Generic.SortedSet*.Max.get*",
+                "System.Collections.Generic.SortedSet*.MemberwiseClone(*)",
+                "System.Collections.Generic.SortedSet*.Min.get*",
+                "System.Collections.Generic.SortedSet*.Overlaps(*)",
+                "System.Collections.Generic.SortedSet*.Reverse(*)",
+                "System.Collections.Generic.SortedSet*.SetEquals(*)",
+                "System.Collections.Generic.SortedSet*.TryGetValue(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.SortedSet<>",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.SortedSet*.Add(*)",
+                "System.Collections.Generic.SortedSet*.Clear(*)",
+                "System.Collections.Generic.SortedSet*.ExceptWith(*)",
+                "System.Collections.Generic.SortedSet*.IntersectWith(*)",
+                "System.Collections.Generic.SortedSet*.Remove(*)",
+                "System.Collections.Generic.SortedSet*.RemoveWhere(*)",
+                "System.Collections.Generic.SortedSet*.SymmetricExceptWith(*)",
+                "System.Collections.Generic.SortedSet*.UnionWith(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.SortedSet<>",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.StringCollection.Contains(*)",
+                "System.Collections.StringCollection.CopyTo(*)",
+                "System.Collections.StringCollection.Count.get*",
+                "System.Collections.StringCollection.GetEnumerator(*)",
+                "System.Collections.StringCollection.IndexOf(*)",
+                "System.Collections.StringCollection.Item.get*",
+                "System.Collections.StringCollection.MemberwiseClone(*)"
+              ]
+            },
+            "Group": "System.Collections.StringCollection",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.StringCollection.Add(*)",
+                "System.Collections.StringCollection.AddRange(*)",
+                "System.Collections.StringCollection.Clear(*)",
+                "System.Collections.StringCollection.Insert(*)",
+                "System.Collections.StringCollection.Item.set*",
+                "System.Collections.StringCollection.Remove(*)",
+                "System.Collections.StringCollection.RemoveAt(*)"
+              ]
+            },
+            "Group": "System.Collections.StringCollection",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.StringDictionary.ContainsKey(*)",
+                "System.Collections.StringDictionary.ContainsValue(*)",
+                "System.Collections.StringDictionary.CopyTo(*)",
+                "System.Collections.StringDictionary.Count.get*",
+                "System.Collections.StringDictionary.GetEnumerator(*)",
+                "System.Collections.StringDictionary.Item.get*",
+                "System.Collections.StringDictionary.Keys.get*",
+                "System.Collections.StringDictionary.MemberwiseClone(*)",
+                "System.Collections.StringDictionary.Values.get*"
+              ]
+            },
+            "Group": "System.Collections.StringDictionary",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.StringDictionary.Add(*)",
+                "System.Collections.StringDictionary.Clear(*)",
+                "System.Collections.StringDictionary.Item.set*",
+                "System.Collections.StringDictionary.Remove(*)"
+              ]
+            },
+            "Group": "System.Collections.StringDictionary",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.ObjectModel.Collection*.Contains(*)",
+                "System.Collections.ObjectModel.Collection*.CopyTo(*)",
+                "System.Collections.ObjectModel.Collection*.Count.get*",
+                "System.Collections.ObjectModel.Collection*.GetEnumerator(*)",
+                "System.Collections.ObjectModel.Collection*.IndexOf(*)",
+                "System.Collections.ObjectModel.Collection*.Item.get*",
+                "System.Collections.ObjectModel.Collection*.Items.get*",
+                "System.Collections.ObjectModel.Collection*.MemberwiseClone(*)"
+              ]
+            },
+            "Group": "System.Collections.ObjectModel.Collection<>",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.ObjectModel.Collection*.Add(*)",
+                "System.Collections.ObjectModel.Collection*.Clear(*)",
+                "System.Collections.ObjectModel.Collection*.ClearItems(*)",
+                "System.Collections.ObjectModel.Collection*.Insert(*)",
+                "System.Collections.ObjectModel.Collection*.InsertItem(*)",
+                "System.Collections.ObjectModel.Collection*.Item.set*",
+                "System.Collections.ObjectModel.Collection*.Remove(*)",
+                "System.Collections.ObjectModel.Collection*.RemoveAt(*)",
+                "System.Collections.ObjectModel.Collection*.RemoveItem(*)",
+                "System.Collections.ObjectModel.Collection*.RemoveItem(*)"
+              ]
+            },
+            "Group": "System.Collections.ObjectModel.Collection<>",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.ObjectModel.KeyedCollection*.Contains(*)",
+                "System.Collections.ObjectModel.KeyedCollection*.CopyTo(*)",
+                "System.Collections.ObjectModel.KeyedCollection*.Count.get*",
+                "System.Collections.ObjectModel.KeyedCollection*.Dictionary.get*",
+                "System.Collections.ObjectModel.KeyedCollection*.GetEnumerator(*)",
+                "System.Collections.ObjectModel.KeyedCollection*.GetKeyForItem(*)",
+                "System.Collections.ObjectModel.KeyedCollection*.IndexOf(*)",
+                "System.Collections.ObjectModel.KeyedCollection*.Item.get*",
+                "System.Collections.ObjectModel.KeyedCollection*.Items.get*",
+                "System.Collections.ObjectModel.KeyedCollection*.MemberwiseClone(*)",
+                "System.Collections.ObjectModel.KeyedCollection*.TryGetValue(*)"
+              ]
+            },
+            "Group": "System.Collections.ObjectModel.KeyedCollection<,>",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.ObjectModel.KeyedCollection*.Add(*)",
+                "System.Collections.ObjectModel.KeyedCollection*.ChangeItemKey(*)",
+                "System.Collections.ObjectModel.KeyedCollection*.Clear(*)",
+                "System.Collections.ObjectModel.KeyedCollection*.ClearItems(*)",
+                "System.Collections.ObjectModel.KeyedCollection*.Insert(*)",
+                "System.Collections.ObjectModel.KeyedCollection*.InsertItem(*)",
+                "System.Collections.ObjectModel.KeyedCollection*.Item.set*",
+                "System.Collections.ObjectModel.KeyedCollection*.Remove(*)",
+                "System.Collections.ObjectModel.KeyedCollection*.RemoveAt(*)",
+                "System.Collections.ObjectModel.KeyedCollection*.RemoveItem(*)",
+                "System.Collections.ObjectModel.KeyedCollection*.SetItem(*)"
+              ]
+            },
+            "Group": "System.Collections.ObjectModel.KeyedCollection<,>",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Stack.Clone(*)",
+                "System.Collections.Stack.Contains(*)",
+                "System.Collections.Stack.CopyTo(*)",
+                "System.Collections.Stack.Count.get*",
+                "System.Collections.Stack.GetEnumerator(*)",
+                "System.Collections.Stack.MemberwiseClone(*)",
+                "System.Collections.Stack.Peek(*)",
+                "System.Collections.Stack.ToArray(*)"
+              ]
+            },
+            "Group": "System.Collections.Stack",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Stack.Clear(*)",
+                "System.Collections.Stack.Pop(*)",
+                "System.Collections.Stack.Push(*)"
+              ]
+            },
+            "Group": "System.Collections.Stack",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.SortedList.Capacity.get*",
+                "System.Collections.SortedList.Clone(*)",
+                "System.Collections.SortedList.Contains(*)",
+                "System.Collections.SortedList.ContainsKey(*)",
+                "System.Collections.SortedList.ContainsValue(*)",
+                "System.Collections.SortedList.CopyTo(*)",
+                "System.Collections.SortedList.Count.get*",
+                "System.Collections.SortedList.GetByIndex(*)",
+                "System.Collections.SortedList.GetEnumerator(*)",
+                "System.Collections.SortedList.GetKey(*)",
+                "System.Collections.SortedList.GetKeyList(*)",
+                "System.Collections.SortedList.GetValueList(*)",
+                "System.Collections.SortedList.IndexOf(*)",
+                "System.Collections.SortedList.IndexOfKey(*)",
+                "System.Collections.SortedList.IndexOfValue(*)",
+                "System.Collections.SortedList.Item.get*",
+                "System.Collections.SortedList.Keys.get*",
+                "System.Collections.SortedList.MemberwiseClone(*)",
+                "System.Collections.SortedList.Values.get*"
+              ]
+            },
+            "Group": "System.Collections.SortedList",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.SortedList.Add(*)",
+                "System.Collections.SortedList.Capacity.set*",
+                "System.Collections.SortedList.Clear(*)",
+                "System.Collections.SortedList.Insert(*)",
+                "System.Collections.SortedList.Item.set*",
+                "System.Collections.SortedList.Remove(*)",
+                "System.Collections.SortedList.RemoveAt(*)",
+                "System.Collections.SortedList.SetByIndex(*)",
+                "System.Collections.SortedList.TrimToSize(*)"
+              ]
+            },
+            "Group": "System.Collections.SortedList",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.ReadOnlyCollectionBase.CopyTo(*)",
+                "System.Collections.ReadOnlyCollectionBase.Count.get*",
+                "System.Collections.ReadOnlyCollectionBase.InnerList.get*",
+                "System.Collections.ReadOnlyCollectionBase.GetEnumerator(*)",
+                "System.Collections.ReadOnlyCollectionBase.MemberwiseClone(*)"
+              ]
+            },
+            "Group": "System.Collections.ReadOnlyCollectionBase",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Queue.Clone(*)",
+                "System.Collections.Queue.Contains(*)",
+                "System.Collections.Queue.CopyTo(*)",
+                "System.Collections.Queue.Count.get*",
+                "System.Collections.Queue.GetEnumerator(*)",
+                "System.Collections.Queue.MemberwiseClone(*)",
+                "System.Collections.Queue.Peek(*)",
+                "System.Collections.Queue.ToArray(*)"
+              ]
+            },
+            "Group": "System.Collections.Queue",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Queue.Clear(*)",
+                "System.Collections.Queue.Dequeue(*)",
+                "System.Collections.Queue.Enqueue(*)",
+                "System.Collections.Queue.TrimToSize(*)"
+              ]
+            },
+            "Group": "System.Collections.Queue",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Array.AsReadOnly(*)",
+                "System.Array.Clear(*)",
+                "System.Array.Clone(*)",
+                "System.Array.CompareTo(*)",
+                "System.Array.Contains(*)",
+                "System.Array.CopyTo(*)",
+                "System.Array.Count.get*",
+                "System.Array.Equals(*)",
+                "System.Array.GetEnumerator(*)",
+                "System.Array.GetLength(*)",
+                "System.Array.GetLongLength(*)",
+                "System.Array.GetValue(*)",
+                "System.Array.IndexOf(*)",
+                "System.Array.Item.get*",
+                "System.Array.Length.get*",
+                "System.Array.LongLength.get*",
+                "System.Array.MemberwiseClone(*)"
+              ]
+            },
+            "Group": "System.Array",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Array.Add(*)",
+                "System.Array.Insert(*)",
+                "System.Array.Item.set*",
+                "System.Array.Remove(*)",
+                "System.Array.RemoveAt(*)",
+                "System.Array.SetValue(*)"
+              ]
+            },
+            "Group": "System.Array",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.ArrayList.BinarySearch(*)",
+                "System.Collections.ArrayList.Capacity.get*",
+                "System.Collections.ArrayList.Clone(*)",
+                "System.Collections.ArrayList.Contains(*)",
+                "System.Collections.ArrayList.CopyTo(*)",
+                "System.Collections.ArrayList.Count.get*",
+                "System.Collections.ArrayList.GetEnumerator(*)",
+                "System.Collections.ArrayList.GetRange(*)",
+                "System.Collections.ArrayList.IndexOf(*)",
+                "System.Collections.ArrayList.Item.get*",
+                "System.Collections.ArrayList.LastIndexOf(*)",
+                "System.Collections.ArrayList.MemberwiseClone(*)",
+                "System.Collections.ArrayList.ToArray(*)"
+              ]
+            },
+            "Group": "System.Collections.ArrayList",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.ArrayList.Add(*)",
+                "System.Collections.ArrayList.AddRange(*)",
+                "System.Collections.ArrayList.Capacity.set*",
+                "System.Collections.ArrayList.Clear(*)",
+                "System.Collections.ArrayList.Insert(*)",
+                "System.Collections.ArrayList.InsertRange(*)",
+                "System.Collections.ArrayList.Item.set*",
+                "System.Collections.ArrayList.Remove(*)",
+                "System.Collections.ArrayList.RemoveAt(*)",
+                "System.Collections.ArrayList.RemoveRange(*)",
+                "System.Collections.ArrayList.Reverse(*)",
+                "System.Collections.ArrayList.SetRange(*)",
+                "System.Collections.ArrayList.Sort(*)",
+                "System.Collections.ArrayList.TrimToSize(*)"
+              ]
+            },
+            "Group": "System.Collections.ArrayList",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Hashtable.Clone(*)",
+                "System.Collections.Hashtable.Contains(*)",
+                "System.Collections.Hashtable.ContainsKey(*)",
+                "System.Collections.Hashtable.ContainsValue(*)",
+                "System.Collections.Hashtable.CopyTo(*)",
+                "System.Collections.Hashtable.Count.get*",
+                "System.Collections.Hashtable.GetEnumerator(*)",
+                "System.Collections.Hashtable.GetObjectData(*)",
+                "System.Collections.Hashtable.IndexOf(*)",
+                "System.Collections.Hashtable.Item.get*",
+                "System.Collections.Hashtable.KeyEquals(*)",
+                "System.Collections.Hashtable.Keys.get*",
+                "System.Collections.Hashtable.MemberwiseClone(*)",
+                "System.Collections.Hashtable.Values.get*"
+              ]
+            },
+            "Group": "System.Collections.Hashtable",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Hashtable.Add(*)",
+                "System.Collections.Hashtable.Clear(*)",
+                "System.Collections.Hashtable.Insert(*)",
+                "System.Collections.Hashtable.Item.set*",
+                "System.Collections.Hashtable.Remove(*)",
+                "System.Collections.Hashtable.RemoveAt(*)"
+              ]
+            },
+            "Group": "System.Collections.Hashtable",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.BitArray.And(*)",
+                "System.Collections.BitArray.Clone(*)",
+                "System.Collections.BitArray.CopyTo(*)",
+                "System.Collections.BitArray.Count.get*",
+                "System.Collections.BitArray.Get(*)",
+                "System.Collections.BitArray.GetEnumerator(*)",
+                "System.Collections.BitArray.Item.get*",
+                "System.Collections.BitArray.LeftShift(*)",
+                "System.Collections.BitArray.Length.get*",
+                "System.Collections.BitArray.MemberwiseClone(*)",
+                "System.Collections.BitArray.Not(*)",
+                "System.Collections.BitArray.Or(*)",
+                "System.Collections.BitArray.RightShift(*)",
+                "System.Collections.BitArray.Xor(*)"
+              ]
+            },
+            "Group": "System.Collections.BitArray",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.BitArray.Item.set*",
+                "System.Collections.BitArray.Length.set*",
+                "System.Collections.BitArray.Set(*)",
+                "System.Collections.BitArray.SetAll(*)"
+              ]
+            },
+            "Group": "System.Collections.BitArray",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.CollectionBase.Capacity.get*",
+                "System.Collections.CollectionBase.Contains(*)",
+                "System.Collections.CollectionBase.CopyTo(*)",
+                "System.Collections.CollectionBase.Count.get*",
+                "System.Collections.CollectionBase.GetEnumerator(*)",
+                "System.Collections.CollectionBase.IndexOf(*)",
+                "System.Collections.CollectionBase.Item.get*",
+                "System.Collections.CollectionBase.MemberwiseClone(*)"
+              ]
+            },
+            "Group": "System.Collections.CollectionBase",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.CollectionBase.Add(*)",
+                "System.Collections.CollectionBase.Capacity.set*",
+                "System.Collections.CollectionBase.Clear(*)",
+                "System.Collections.CollectionBase.Insert(*)",
+                "System.Collections.CollectionBase.Item.set*",
+                "System.Collections.CollectionBase.Remove(*)",
+                "System.Collections.CollectionBase.RemoveAt(*)"
+              ]
+            },
+            "Group": "System.Collections.CollectionBase",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.DictionaryBase.Contains(*)",
+                "System.Collections.DictionaryBase.CopyTo(*)",
+                "System.Collections.DictionaryBase.Count.get*",
+                "System.Collections.DictionaryBase.Count(*)",
+                "System.Collections.DictionaryBase.GetEnumerator(*)",
+                "System.Collections.DictionaryBase.Item.get*",
+                "System.Collections.DictionaryBase.Keys.get*",
+                "System.Collections.DictionaryBase.TryGetValue(*)",
+                "System.Collections.DictionaryBase.Values.get*"
+              ]
+            },
+            "Group": "Collections.DictionaryBase",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.DictionaryBase.Add(*)",
+                "System.Collections.DictionaryBase.Clear(*)",
+                "System.Collections.DictionaryBase.Item.set*",
+                "System.Collections.DictionaryBase.Remove(*)",
+                "System.Collections.DictionaryBase.TryAdd(*)"
+              ]
+            },
+            "Group": "Collections.DictionaryBase",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Specialized.HybridDictionary.Contains(*)",
+                "System.Collections.Specialized.HybridDictionary.CopyTo(*)",
+                "System.Collections.Specialized.HybridDictionary.Count.get*",
+                "System.Collections.Specialized.HybridDictionary.Count(*)",
+                "System.Collections.Specialized.HybridDictionary.GetEnumerator(*)",
+                "System.Collections.Specialized.HybridDictionary.Item.get*",
+                "System.Collections.Specialized.HybridDictionary.Keys.get*",
+                "System.Collections.Specialized.HybridDictionary.TryGetValue(*)",
+                "System.Collections.Specialized.HybridDictionary.Values.get*"
+              ]
+            },
+            "Group": "System.Collections.Specialized.HybridDictionary",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Specialized.HybridDictionary.Add(*)",
+                "System.Collections.Specialized.HybridDictionary.Clear(*)",
+                "System.Collections.Specialized.HybridDictionary.Item.set*",
+                "System.Collections.Specialized.HybridDictionary.Remove(*)",
+                "System.Collections.Specialized.HybridDictionary.TryAdd(*)"
+              ]
+            },
+            "Group": "System.Collections.Specialized.HybridDictionary",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.SortedList*.Capacity.get*",
+                "System.Collections.Generic.SortedList*.Clone(*)",
+                "System.Collections.Generic.SortedList*.Contains(*)",
+                "System.Collections.Generic.SortedList*.ContainsKey(*)",
+                "System.Collections.Generic.SortedList*.ContainsValue(*)",
+                "System.Collections.Generic.SortedList*.CopyTo(*)",
+                "System.Collections.Generic.SortedList*.Count.get*",
+                "System.Collections.Generic.SortedList*.GetEnumerator(*)",
+                "System.Collections.Generic.SortedList*.IndexOfKey(*)",
+                "System.Collections.Generic.SortedList*.IndexOfValue(*)",
+                "System.Collections.Generic.SortedList*.Item.get*",
+                "System.Collections.Generic.SortedList*.Keys.get*",
+                "System.Collections.Generic.SortedList*.MemberwiseClone(*)",
+                "System.Collections.Generic.SortedList*.TryGetValue(*)",
+                "System.Collections.Generic.SortedList*.Values.get*"
+              ]
+            },
+            "Group": "System.Collections.Generic.Generic.SortedList<>",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Collections.Generic.SortedList*.Add(*)",
+                "System.Collections.Generic.SortedList*.Capacity.set*",
+                "System.Collections.Generic.SortedList*.Clear(*)",
+                "System.Collections.Generic.SortedList*.Item.set*",
+                "System.Collections.Generic.SortedList*.Remove(*)",
+                "System.Collections.Generic.SortedList*.RemoveAt(*)",
+                "System.Collections.Generic.SortedList*.TrimExcess(*)"
+              ]
+            },
+            "Group": "System.Collections.Generic.Generic.SortedList<>",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Activities.Variable.Get(*)"
+              ]
+            },
+            "Group": "System.Activities.Variable",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.Activities.Variable.Set(*)"
+              ]
+            },
+            "Group": "System.Activities.Variable",
+            "Write": true
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.AppDomain.GetData(*)"
+              ]
+            },
+            "Group": "System.AppDomain",
+            "Write": false
+          },
+          {
+            "Method": {
+              "Wildcard": [
+                "System.AppDomain.SetData(*)"
+              ]
+            },
+            "Group": "System.AppDomain",
+            "Write": true
+          }
+        ],
+        "Exclude": [
+          {
+            "Method": { "Wildcard": "System.IntPtr*" }
+          }
+        ]
+      }
+    },
+    {
+      "Name": "Delay",
+      "DelayLogPath": "torch-delay.torchlog",
+      "DelayParameters": {
+        "DelayProbability": 0.05,
+        "MaxDelayPerTorchPoint": "100ms",
+        "EnforceMaxDelayPerThread": true,
+        "MaxDelayPerThread": "5s",
+        "MaxDelayPerThreadPercentage": 0,
+        "RandomSeed": 0
+      },
+      "Methods": {
+        "Include": [
+          {
+            "Method": {
+              "Wildcard": [
+                "*"
+              ]
+            }
+          }
+        ],
+        "Exclude": [
+          {
+            "Method": { "Wildcard": "System.IntPtr*" }
+          }
+        ]
+      }
+    },
+    {
+      "Name": "FaultInjection",
+      "Active": "always",
+      "FaultLogPath": "fault-log.torchlog"
+    },
+    {
+      "Name": "Logger",
+      "EnableFile": true,
+      "EnableETW": false,
+      "SamplingParameters": {
+        "Enable": false,
+        "SamplingScope": "Global",
+        "MaxSamplingWindow": "1s",
+        "SamplingProb": 0.1
+      },
+      "Methods": {
+        "Include": [
+          {
+            "Method": {
+              "Wildcard": [
+                "*"
+              ]
+            }
+          }
+        ],
+        "Exclude": [
+          {
+            "Method": { "Wildcard": "System.IntPtr*" }
+          }
+        ]
+      }
+    }
+  ],
+  "Logging": {
+    "Using": [ "Microsoft.Torch" ],
+    "MinimumLevel": "Information",
+    "WriteTo": [
+      {
+        "Name": "File",
+        "Args": {
+          "path": "torch-debug.torchlog"
+        }
+      }
+    ],
+    "Enrich": [ "FromLogContext", "WithMachineName", "WithProcessId", "WithThreadId" ],
+    "Destructure": [
+      {
+        "Name": "ToMaximumDepth",
+        "Args": { "maximumDestructuringDepth": 4 }
+      },
+      {
+        "Name": "ToMaximumStringLength",
+        "Args": { "maximumStringLength": 100 }
+      },
+      {
+        "Name": "ToMaximumCollectionCount",
+        "Args": { "maximumCollectionCount": 10 }
+      }
+    ]
+  }
+}

@@ -331,7 +331,8 @@ function Start-PSBuild {
         [switch]$Detailed,
         [switch]$InteractiveAuth,
         [switch]$SkipRoslynAnalyzers,
-        [string]$PSOptionsPath
+        [string]$PSOptionsPath,
+        [switch]$NoReadyToRun # needed for torch
     )
 
     if ($ReleaseTag -and $ReleaseTag -notmatch "^v\d+\.\d+\.\d+(-(preview|rc)(\.\d{1,2})?)?$") {
@@ -467,7 +468,8 @@ Fix steps:
     # Framework Dependent builds do not support ReadyToRun as it needs a specific runtime to optimize for.
     # The property is set in Powershell.Common.props file.
     # We override the property through the build command line.
-    if(($Options.Runtime -like 'fxdependent*' -or $ForMinimalSize) -and $Options.Runtime -notmatch $optimizedFddRegex) {
+
+    if($NoReadyToRun -or (($Options.Runtime -like 'fxdependent*' -or $ForMinimalSize) -and $Options.Runtime -notmatch $optimizedFddRegex)) {
         $Arguments += "/property:PublishReadyToRun=false"
     }
 
