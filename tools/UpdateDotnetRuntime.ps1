@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess=$true)]
 param (
     [Parameter()]
     [string]$SDKVersionOverride,
@@ -186,7 +186,7 @@ function Get-DotnetUpdate {
         return @{
             ShouldUpdate = $true
             NewVersion   = $SDKVersionOverride
-            Message      = $null
+            Message      = "Should Override SDK Version to $SDKVersionOverride"
             FeedUrl      = $feedUrl
             Quality      = $quality
         }
@@ -224,6 +224,7 @@ function Get-DotnetUpdate {
         if ($latestSDKversion -gt $currentVersion -and $null -ne $latestSDKversion.PreReleaseLabel) {
             $shouldUpdate = $true
             $newVersion = $latestSDKversion
+            $Message = "Should update to $newVersion"
         } else {
             $shouldUpdate = $false
             $newVersion = $latestSDKVersionString
@@ -232,16 +233,17 @@ function Get-DotnetUpdate {
             }
         }
     } catch {
-        Write-Verbose -Verbose "Error occured: $_.message"
+        Write-Verbose -Verbose ("Error occured: " + $_.message)
         $shouldUpdate = $false
         $newVersion = $null
+        $Message = "Error occured: " + $_.message
         Write-Error "Error while checking .NET SDK update: $($_.message)"
     }
 
     return @{
         ShouldUpdate = $shouldUpdate
         NewVersion   = $newVersion
-        Message      = $Message
+        Message      = $null -ne $Message ? $Message : "Should update: $shouldUpdate, feed: $feedUrl, quality: $selectedQuality"
         FeedUrl      = $feedUrl
         Quality      = $selectedQuality
     }
@@ -309,11 +311,13 @@ if ($dotnetUpdate.ShouldUpdate) {
     $sdkQuality = $dotnetUpdate.Quality
     $sdkVersion = if ($SDKVersionOverride) { $SDKVersionOverride } else { $dotnetUpdate.NewVersion }
 
-    if (-not $RuntimeSourceFeed) {
-        Install-Dotnet -Version $sdkVersion -Quality $sdkQuality -Channel $null
-    }
-    else {
-        Install-Dotnet -Version $sdkVersion -Quality $sdkQuality -AzureFeed $RuntimeSourceFeed -FeedCredential $RuntimeSourceFeedKey -Channel $null
+    if ( $PSCmdlet.ShouldProcess("Install dotnet $sdkVersion $sdkQuality no channel") {
+        if (-not $RuntimeSourceFeed) {
+            Install-Dotnet -Version $sdkVersion -Quality $sdkQuality -Channel $null
+        }
+        else {
+            Install-Dotnet -Version $sdkVersion -Quality $sdkQuality -AzureFeed $RuntimeSourceFeed -FeedCredential $RuntimeSourceFeedKey -Channel $null
+        }
     }
 
     Write-Verbose -Message "Installing .NET SDK completed." -Verbose
@@ -332,35 +336,41 @@ if ($dotnetUpdate.ShouldUpdate) {
 
     Write-Verbose -Message "Installing .NET SDK completed, version - $latestSdkVersion" -Verbose
 
-    Update-GlobalJson -Version $latestSdkVersion
+    if ($PSCmdlet.ShouldProcess("Update-GlobalJson")) {
+        Update-GlobalJson -Version $latestSdkVersion
+    }
 
     Write-Verbose -Message "Updating global.json completed." -Verbose
 
-    Update-PackageVersion
+    if ($PSCmdlet.ShouldProcess("Update-GlobalJson"))  {
+        Update-PackageVersion
+    }
 
     Write-Verbose -Message "Updating project files completed." -Verbose
 
     if ($UpdateMSIPackaging) {
-        if (-not $environment.IsWindows) {
-            throw "UpdateMSIPackaging can only be done on Windows"
-        }
+        if ($PSCmdlet.ShouldProcess("Update msi packaging")) {
+            if (-not $environment.IsWindows) {
+                throw "UpdateMSIPackaging can only be done on Windows"
+            }
 
-        Import-Module "$PSScriptRoot/../build.psm1" -Force
-        Import-Module "$PSScriptRoot/packaging" -Force
-        Start-PSBootstrap -Package
-        Start-PSBuild -Clean -Configuration Release -InteractiveAuth:$InteractiveAuth
+            Import-Module "$PSScriptRoot/../build.psm1" -Force
+            Import-Module "$PSScriptRoot/packaging" -Force
+            Start-PSBootstrap -Package
+            Start-PSBuild -Clean -Configuration Release -InteractiveAuth:$InteractiveAuth
 
-        $publishPath = Split-Path (Get-PSOutput)
-        Remove-Item -Path "$publishPath\*.pdb"
+            $publishPath = Split-Path (Get-PSOutput)
+            Remove-Item -Path "$publishPath\*.pdb"
 
-        try {
-            Start-PSPackage -Type msi -SkipReleaseChecks -InformationVariable wxsData
-        } catch {
-            if ($_.Exception.Message -like "Current files to not match *") {
-                Copy-Item -Path $($wxsData.MessageData.NewFile) -Destination ($wxsData.MessageData.FilesWxsPath)
-                Write-Verbose -Message "Updating files.wxs file completed." -Verbose
-            } else {
-                throw $_
+            try {
+                Start-PSPackage -Type msi -SkipReleaseChecks -InformationVariable wxsData
+            } catch {
+                if ($_.Exception.Message -like "Current files to not match *") {
+                    Copy-Item -Path $($wxsData.MessageData.NewFile) -Destination ($wxsData.MessageData.FilesWxsPath)
+                    Write-Verbose -Message "Updating files.wxs file completed." -Verbose
+                } else {
+                    throw $_
+                }
             }
         }
     }
