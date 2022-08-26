@@ -28,6 +28,7 @@ namespace System.Management.Automation
         internal const string PSFeedbackProvider = "PSFeedbackProvider";
         internal const string PSCommandWithArgs = "PSCommandWithArgs";
         internal const string PSConstrainedAuditLogging = "PSConstrainedAuditLogging";
+        internal const string PSNativeScriptBlockArgumentFeatureName = "PSNativeScriptBlockArgument";
 
         #endregion
 
@@ -139,7 +140,10 @@ namespace System.Management.Automation
                     description: "Enable `-CommandWithArgs` parameter for pwsh"),
                 new ExperimentalFeature(
                     name: PSConstrainedAuditLogging,
-                    description: "PowerShell restriction logging when WDAC (Windows Defender Application Control) Code Integrity policy is set to Audit mode.")
+                    description: "PowerShell restriction logging when WDAC (Windows Defender Application Control) Code Integrity policy is set to Audit mode."),
+                new ExperimentalFeature(
+                    name: PSNativeScriptBlockArgumentFeatureName,
+                    description: "Add support of passing ScriptBlock arguments unchanged to native commands"),
             };
 
             EngineExperimentalFeatures = new ReadOnlyCollection<ExperimentalFeature>(engineFeatures);
