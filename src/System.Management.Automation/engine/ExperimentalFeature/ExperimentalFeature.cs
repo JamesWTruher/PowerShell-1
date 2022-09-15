@@ -143,6 +143,23 @@ namespace System.Management.Automation
             catch (Exception e) when (LogException(e)) { }
 
             EnabledExperimentalFeatureNames = ProcessEnabledFeatures(enabledFeatures);
+            NotifyDisabledExperimentalFeatures(engineFeatures);
+        }
+
+        /// <summary>
+        /// Send telemetry for engine experimental features which have not been enabled.
+        /// By the time we get to this, the features should be enabled.
+        /// </summary>
+        private static void NotifyDisabledExperimentalFeatures(ExperimentalFeature[] engineFeatures)
+        {
+            foreach (ExperimentalFeature engineFeature in engineFeatures)
+            {
+                if (!IsEnabled(engineFeature.Name))
+                {
+                    Console.WriteLine("suppress {0}", engineFeature.Name);
+                    ApplicationInsightsTelemetry.SendTelemetryMetric(TelemetryType.ExperimentalFeatureSuppression, engineFeature.Name);
+                }
+            }
         }
 
         /// <summary>

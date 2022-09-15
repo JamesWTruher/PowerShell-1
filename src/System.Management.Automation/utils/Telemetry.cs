@@ -61,6 +61,13 @@ namespace Microsoft.PowerShell.Telemetry
         /// Remote session creation.
         /// </summary>
         RemoteSessionOpen,
+
+        /// <summary>
+        /// An experimental feature is not activated.
+        /// </summary>
+
+        ExperimentalFeatureSuppression,
+
     }
 
     /// <summary>
@@ -146,7 +153,7 @@ namespace Microsoft.PowerShell.Telemetry
                 configuration.ConnectionString = "InstrumentationKey=" + _psCoreTelemetryKey;
 
                 // Set this to true to reduce latency during development
-                configuration.TelemetryChannel.DeveloperMode = false;
+                configuration.TelemetryChannel.DeveloperMode = true;
 
                 // Be sure to obscure any information about the client node name.
                 configuration.TelemetryInitializers.Add(new NameObscurerTelemetryInitializer());
@@ -697,6 +704,7 @@ namespace Microsoft.PowerShell.Telemetry
                     case TelemetryType.ApplicationType:
                     case TelemetryType.PowerShellCreate:
                     case TelemetryType.RemoteSessionOpen:
+                    case TelemetryType.ExperimentalFeatureSuppression:
                     case TelemetryType.ExperimentalEngineFeatureActivation:
                         s_telemetryClient.GetMetric(metricName, "uuid", "SessionId", "Detail").TrackValue(metricValue: 1.0, s_uniqueUserIdentifier, s_sessionId, data);
                         break;
