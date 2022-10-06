@@ -1246,6 +1246,14 @@ namespace System.Management.Automation
             return currentModulePath;
         }
 
+        /// <summary>
+        /// Return the current PSModulePath.
+        /// </summary>
+        public static string GetPSModulePath()
+        {
+            return GetModulePath();
+        }
+
 #if !UNIX
         /// <summary>
         /// Returns a PSModulePath suiteable for Windows PowerShell by removing PowerShell's specific
