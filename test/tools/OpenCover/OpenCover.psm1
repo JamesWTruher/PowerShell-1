@@ -45,6 +45,84 @@ function Get-ClassCoverageData([xml.xmlelement]$element)
 
 #region FileCoverage
 
+class AnnotatedString {
+	[string]$Attribute # this could be bold, or some color
+	[string]$Content
+	AnnotatedString([string]$attr, [string]$content) {
+		$this.Attribute = $attr
+		$this.Content = $content
+	}
+}
+
+class coverageColor {
+	static [string]$Reset = "`e[0m"
+	static [string]$Red   = "`e[31m"
+	static [string]$Green = "`e[32m"
+	static [string]$White = "`e[37m"
+    hidden [string]$current
+    [string]ToString() {
+        return $this.current
+    }
+    coverageColor([string]$c) {
+        $this.current = ([coverageColor]::$c)
+    }
+}
+
+class AnnotatedStringCollection {
+	[Collections.Generic.List[AnnotatedString]]$Lines
+	hidden [string]$_theString = ""
+	AnnotatedStringCollection() {
+		$this.Lines = [Collections.Generic.List[AnnotatedString]]::new()
+	}
+	[void]AddLine([coverageColor]$attribute, [string]$content) {
+		$this.Lines.Add([AnnotatedString]::new($attribute, $content))
+	}
+	[string]ToString() {
+		if ( $this._theString -ne "") {
+			return $this._theString
+		}
+		$sb = [Text.StringBuilder]::new()
+		$ll = $this.Lines.Count.ToString().Length
+		$zeros = "0" * $ll
+		$fmtStr = "{0:${zeros}}"
+		$sb.Append(("${fmtStr} " -f 1))
+		$sb.Append($this.Lines[0].Attribute)
+		$sb.Append($this.Lines[0].Content)
+		for($i = 1; $i -lt $this.Lines.Count; $i++) {
+			if ($this.Lines[$i-1].Attribute -eq $this.Lines[$i].Attribute) {
+				$sb.AppendLine() # don't reset the color
+				$sb.Append(("${fmtStr} " -f ($i+1)))
+				$sb.Append($this.Lines[$i].Content)
+			}
+			else {
+				$sb.AppendLine([coverageColor]::Reset) # reset the color
+				$sb.Append($this.Lines[$i].Attribute)
+				$sb.Append(("${fmtStr} " -f ($i+1)))
+				$sb.Append($this.Lines[$i].Content);
+			}
+		}
+		$sb.AppendLine([coverageColor]::Reset) # final reset
+		$this._theString = $sb.ToString()
+		return $this._theString
+	}
+	[string]ToHtml() {
+		$sb = [text.stringbuilder]::new()
+		$sb.AppendLine("<html>")
+		$sb.AppendLine(" <body>")
+		$sb.AppendLine("  <table>")
+		for($i = 0; $i -lt $this.Lines.Count; $i++) {
+			$attr = $this.Lines[$i].Attribute
+			$color = $attr -eq [coverageColor]::Red ? "red" : $attr -eq [coverageColor]::Green ? "green" : "black"
+			$line = "<code color='{0}'>{1}</code>" -f $color, $this.Lines[$i]
+			$sb.AppendLine("<tr><td>{0}></td><td>{1}</td></tr>" -f ($i+1),$line)
+		}
+		$sb.AppendLine("  </table>")
+		$sb.AppendLine(" </body>")
+		$sb.AppendLine("</html>")
+	    return $sb.ToString()
+	}
+}
+
 class FileCoverage
 {
     [string]$Path
@@ -57,6 +135,23 @@ class FileCoverage
         $this.Hit = [Collections.Generic.HashSet[int]]::new()
         $this.Miss = [Collections.Generic.HashSet[int]]::new()
     }
+	[string]Show() {
+		$lines = get-content $this.Path -read 0
+		$annotatedLines = [AnnotatedStringCollection]::new()
+		for($i = 0; $i -lt $lines.count; $i++) {
+			if ( $this.hit.contains($i+1)) {
+				$color = "Green"
+			}
+			elseif ( $this.miss.contains($i+1)) {
+				$color = "Red"
+			}
+			else {
+				$color = "White"
+			}
+			$annotatedLines.AddLine($color,$lines[$i])
+		}
+		return ([string]$annotatedLines)
+	}
 }
 
 <#
@@ -287,11 +382,13 @@ function Get-AssemblyCoverageChange($r1, $r2)
 
 function Get-CoverageData($xmlPath)
 {
+	Write-Progress "Reading $xmlPath"
     [xml]$CoverageXml = Get-Content -ReadCount 0 $xmlPath
     if ( $null -eq $CoverageXml.CoverageSession ) { throw "CoverageSession data not found" }
 
     $assemblies = New-Object System.Collections.ArrayList
 
+	Write-Progress "Inspecting coverage data"
     foreach( $module in $CoverageXml.CoverageSession.modules.module| Where-Object {$_.skippedDueTo -ne "MissingPdb"}) {
         $assemblies.Add((Get-AssemblyCoverageData -element $module)) | Out-Null
     }
@@ -304,11 +401,11 @@ function Get-CoverageData($xmlPath)
     }
     $CoverageData.PSTypeNames.Insert(0,"OpenCover.CoverageData")
     Add-Member -InputObject $CoverageData -MemberType ScriptMethod -Name GetClassCoverage -Value { param ( $name ) $this.assembly.classcoverage | Where-Object {$_.classname -match $name } }
-    $null = $CoverageXml
+    Remove-Variable CoverageXml -ea Ignore
 
     Add-Member -InputObject $CoverageData -MemberType ScriptMethod -Name GetFileCoverage -Value { param ( $name = ".*" ) @($this.FileCoverage.Values) | Where-Object {$_.Path -match "$name"} }
 
-    ## Adding explicit garbage collection as the $CoverageXml object tends to be very large, in order of 1 GB.
+    ## Adding explicit garbage collection as the $CoverageXml object tends to be very large, on the order of 1 GB.
     [gc]::Collect()
 
     return $CoverageData
