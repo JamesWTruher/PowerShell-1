@@ -59,15 +59,13 @@ Describe "Basic Auth over HTTP not allowed on Unix" -Tag @("CI") {
 
 Describe "JEA session Transcript script test" -Tag @("Feature", 'RequireAdminOnWindows') {
     BeforeAll {
-        $originalDefaultParameterValues = $PSDefaultParameterValues.Clone()
+        $originalDefaultParameterValues = $global:PSDefaultParameterValues.Clone()
 
-        if ( ! $IsWindows -or !(Test-CanWriteToPsHome))
-        {
-            $PSDefaultParameterValues["it:skip"] = $true
-        }
-        else
-        {
+        if ($IsWindows -and (Test-CanWriteToPsHome)) {
             Enable-PSRemoting -SkipNetworkProfileCheck
+        }
+        else {
+            $global:PSDefaultParameterValues["it:skip"] = $true
         }
     }
 
@@ -79,8 +77,7 @@ Describe "JEA session Transcript script test" -Tag @("Feature", 'RequireAdminOnW
         [string] $RoleCapDirectory = (New-Item -Path "$TestDrive\RoleCapability" -ItemType Directory -Force).FullName
         [string] $PSSessionConfigFile = "$RoleCapDirectory\TestConfig.pssc"
         [string] $transScriptFile = "$RoleCapDirectory\*.txt"
-        try
-        {
+        try {
             New-PSSessionConfigurationFile -Path $PSSessionConfigFile -TranscriptDirectory $RoleCapDirectory -SessionType RestrictedRemoteServer
             Register-PSSessionConfiguration -Name JEA -Path $PSSessionConfigFile -Force -ErrorAction SilentlyContinue
             $scriptBlock = {Enter-RemoteSession -ComputerName Localhost -ConfigurationName JEA; Exit-PSSession}
@@ -91,8 +88,10 @@ Describe "JEA session Transcript script test" -Tag @("Feature", 'RequireAdminOnW
             $header = Get-Content $headerFile | Out-String
             $header | Should -Match "Configuration Name: JEA"
         }
-        finally
-        {
+        catch {
+            Write-Verbose -Verbose ("CAUGHT: " + $_.Message)
+        }
+        finally {
             Unregister-PSSessionConfiguration -Name JEA -Force -ErrorAction SilentlyContinue
         }
     }
@@ -101,15 +100,14 @@ Describe "JEA session Transcript script test" -Tag @("Feature", 'RequireAdminOnW
 
 Describe "JEA session Get-Help test" -Tag @("CI", 'RequireAdminOnWindows') {
     BeforeAll {
-        $originalDefaultParameterValues = $PSDefaultParameterValues.Clone()
+        $originalDefaultParameterValues = $global:PSDefaultParameterValues.Clone()
 
-        if ( ! $IsWindows -or !(Test-CanWriteToPsHome))
-        {
-            $PSDefaultParameterValues["it:skip"] = $true
+        if ($IsWindows -and (Test-CanWriteToPsHome)) {
+            Enable-PSRemoting -SkipNetworkProfileCheck
         }
         else
         {
-            Enable-PSRemoting -SkipNetworkProfileCheck
+            $global:PSDefaultParameterValues["it:skip"] = $true
         }
     }
 
@@ -120,8 +118,7 @@ Describe "JEA session Get-Help test" -Tag @("CI", 'RequireAdminOnWindows') {
     It "Get-Help should work in JEA sessions" {
         [string] $RoleCapDirectory = (New-Item -Path "$TestDrive\RoleCapability" -ItemType Directory -Force).FullName
         [string] $PSSessionConfigFile = "$RoleCapDirectory\TestConfig.pssc"
-        try
-        {
+        try {
             New-PSSessionConfigurationFile -Path $PSSessionConfigFile -TranscriptDirectory $RoleCapDirectory -SessionType RestrictedRemoteServer
             Register-PSSessionConfiguration -Name JEA -Path $PSSessionConfigFile -Force -ErrorAction SilentlyContinue
             $scriptBlock = {Enter-RemoteSession -ComputerName Localhost -ConfigurationName JEA; Get-Help Get-Command; Exit-PSSession}
@@ -130,8 +127,10 @@ Describe "JEA session Get-Help test" -Tag @("CI", 'RequireAdminOnWindows') {
             $helpContent = [powershell]::Create().AddScript($scriptBlock).Invoke()
             $helpContent | Should -Not -BeNullOrEmpty
         }
-        finally
-        {
+        catch {
+            Write-Verbose -Verbose ("CAUGHT: " + $_.Message)
+        }
+        finally {
             Unregister-PSSessionConfiguration -Name JEA -Force -ErrorAction SilentlyContinue
             Remove-Item $RoleCapDirectory -Recurse -Force -ErrorAction SilentlyContinue
         }
@@ -141,14 +140,9 @@ Describe "JEA session Get-Help test" -Tag @("CI", 'RequireAdminOnWindows') {
 Describe "Remoting loopback tests" -Tags @('CI', 'RequireAdminOnWindows') {
     BeforeAll {
 
-        $originalDefaultParameterValues = $PSDefaultParameterValues.Clone()
+        $originalDefaultParameterValues = $global:PSDefaultParameterValues.Clone()
 
-        if ( ! $IsWindows )
-        {
-            $PSDefaultParameterValues["it:skip"] = $true
-        }
-        else
-        {
+        if ($IsWindows -and (Test-CanWriteToPsHome)) {
             Enable-PSRemoting -SkipNetworkProfileCheck
             $endPoint = (Get-PSSessionConfiguration -Name "PowerShell.$(${PSVersionTable}.GitCommitId)").Name
             $disconnectedSession = New-RemoteSession -ConfigurationName $endPoint -ComputerName localhost | Disconnect-PSSession
@@ -203,13 +197,15 @@ Describe "Remoting loopback tests" -Tags @('CI', 'RequireAdminOnWindows') {
                 $session.State | Should -Be $state
             }
         }
+        else {
+            $global:PSDefaultParameterValues["it:skip"] = $true
+        }
     }
 
     AfterAll {
         $global:PSDefaultParameterValues = $originalDefaultParameterValues
 
-        if($IsWindows)
-        {
+        if ($IsWindows -and (Test-CanWriteToPsHome)) {
             Remove-PSSession $disconnectedSession,$closedSession,$openSession -ErrorAction SilentlyContinue
         }
     }
@@ -217,36 +213,37 @@ Describe "Remoting loopback tests" -Tags @('CI', 'RequireAdminOnWindows') {
     It 'Can connect to default endpoint' {
         $session = New-RemoteSession -ConfigurationName $endPoint
 
-        try
-        {
+        try {
             ValidateSessionInfo -session $session -state 'Opened'
         }
-        finally
-        {
+        catch {
+            Write-Verbose -Verbose ("CAUGHT: " + $_.Message)
+        }
+        finally {
             $session | Remove-PSSession -ErrorAction SilentlyContinue
         }
     }
 
     It 'Can execute command in a disconnected session' {
         $session = Invoke-RemoteCommand -InDisconnectedSession -ComputerName 'localhost' -ScriptBlock { 1 + 1 } -ConfigurationName $endPoint
-        try
-        {
+        try {
             ValidateSessionInfo -session $session -state 'Disconnected'
 
             $result = Receive-PSSession -Session $session
             $result | Should -Be 2
             $result.PSComputerName | Should -BeExactly 'localhost'
         }
-        finally
-        {
+        catch {
+            Write-Verbose -Verbose ("CAUGHT: " + $_.Message)
+        }
+        finally {
             $session | Remove-PSSession -ErrorAction SilentlyContinue
         }
     }
 
     It 'Can disconnect and connect to PSSession' {
         $session = New-RemoteSession -ConfigurationName $endPoint
-        try
-        {
+        try {
             ValidateSessionInfo -session $session -state 'Opened'
             Disconnect-PSSession -Session $session
 
@@ -257,8 +254,10 @@ Describe "Remoting loopback tests" -Tags @('CI', 'RequireAdminOnWindows') {
             $result | Should -Be 2
             $result.PSComputerName | Should -BeExactly 'localhost'
         }
-        finally
-        {
+        catch {
+            Write-Verbose -Verbose ("CAUGHT: " + $_.Message)
+        }
+        finally {
             $session | Remove-PSSession -ErrorAction SilentlyContinue
         }
     }
@@ -270,12 +269,10 @@ Describe "Remoting loopback tests" -Tags @('CI', 'RequireAdminOnWindows') {
     }
 
     It 'Can execute command if one of the sessions is available' {
-        try
-        {
+        try {
             $result = Invoke-Command -Session $openSession,$disconnectedSession,$closedSession -ScriptBlock { 1+1 } -ErrorAction SilentlyContinue
         }
-        catch
-        {
+        catch {
             if($_.FullyQualifiedErrorId -ne 'InvokeCommandCommandInvalidSessionState,Microsoft.PowerShell.Commands.InvokeCommandCommand')
             {
                 # We expect the error from $disconnectedSession and $closedSession. Hence, throw otherwise.
@@ -310,14 +307,15 @@ Describe "Remoting loopback tests" -Tags @('CI', 'RequireAdminOnWindows') {
 
         Connect-RemoteSession -ComputerName localhost -Name $connectionNames -ConfigurationName $endpoint
         $sessions = Get-PSSession -Name $connectionNames
-        try
-        {
+        try {
             $sessions | ForEach-Object {
                 ValidateSessionInfo -session $_ -state 'Opened'
             }
         }
-        finally
-        {
+        catch {
+            Write-Verbose -Verbose ("CAUGHT: " + $_.Message)
+        }
+        finally {
             $sessions | Remove-PSSession -ErrorAction SilentlyContinue
         }
     }
@@ -334,6 +332,9 @@ Describe "Remoting loopback tests" -Tags @('CI', 'RequireAdminOnWindows') {
             $result = Invoke-Command -Session $session -ScriptBlock { $Host.Version }
             $result | Should -Be $PSVersionTable.PSVersion
         }
+        catch {
+            Write-Verbose -Verbose ("CAUGHT: " + $_.Message)
+        }
         finally {
             $session | Remove-PSSession -ErrorAction Ignore
         }
@@ -344,7 +345,11 @@ Describe "Remoting loopback tests" -Tags @('CI', 'RequireAdminOnWindows') {
         try {
             $result = Invoke-Command -Session $session -ScriptBlock { $ExecutionContext.SessionState.LanguageMode }
             $result | Should -Be ([System.Management.Automation.PSLanguageMode]::FullLanguage)
-        } finally {
+        }
+        catch {
+            Write-Verbose -Verbose ("CAUGHT: " + $_.Message)
+        }
+        finally {
             $session | Remove-PSSession -ErrorAction Ignore
         }
     }
