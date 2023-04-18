@@ -45,7 +45,7 @@ namespace System.Management.Automation.Language
 	/// <summary>
 	/// The Get-TypeAccelerator cmdlet.
 	/// </summary>
-	[Cmdlet("Get", "TypeAccelerator", DefaultParameterSetName = "name")]
+	[Cmdlet(VerbsCommon.Get, "TypeAccelerator", DefaultParameterSetName = "name")]
     public class GetTypeAcceleratorCommand : PSCmdlet
     {
         /// <summary>
@@ -53,6 +53,7 @@ namespace System.Management.Automation.Language
         /// </summary>
 		[Parameter(ParameterSetName="name", Position = 0)]
         [Alias("Name")]
+        [SupportsWildcards]
         public string[] AcceleratorName { get; set; }
 
         /// </summary>
@@ -62,6 +63,19 @@ namespace System.Management.Automation.Language
         [Alias("Type")]
         public Type[] AcceleratorType { get; set; }
 
+        internal HashSet<string> _names = new HashSet<string>();
+
+        /// <summary>
+        /// Start by collecting the type accelerator names.
+        /// </summary>
+        protected override void BeginProcessing()
+        {
+            foreach (var k in TypeAccelerators.Get.Keys)
+            {
+                _names.Add(k.ToString());
+            }
+        }
+
 		/// <summary>
 		/// Get the type accelerator.
 		/// </summary>
@@ -70,9 +84,9 @@ namespace System.Management.Automation.Language
 			Type result;
 			if (AcceleratorName is null && AcceleratorType is null)
 			{
-				foreach (var k in TypeAccelerators.Get.Keys)
+				foreach (var name in _names)
 				{
-					WriteObject(new TypeAcceleratorInfo(k.ToString(), TypeAccelerators.Get[k]));
+					WriteObject(new TypeAcceleratorInfo(name, TypeAccelerators.Get[name]));
 				}
 				return;
 			}
@@ -80,9 +94,21 @@ namespace System.Management.Automation.Language
 			if (ParameterSetName.CompareTo("name") == 0)
 			{
 				foreach (var name in AcceleratorName) {
-					if (TypeAccelerators.Get.TryGetValue(name, out result)) {
-						WriteObject(new TypeAcceleratorInfo(name, result));
-					}
+                    if (WildcardPattern.ContainsWildcardCharacters(name))
+                    {
+                        var pattern = WildcardPattern.Get(name, WildcardOptions.IgnoreCase);
+                        foreach (var k in _names)
+                        {
+                            if (pattern.IsMatch(k))
+                            {
+                                WriteObject(new TypeAcceleratorInfo(k, TypeAccelerators.Get[k]));
+                            }
+                        }
+                    }
+                    else if (TypeAccelerators.Get.TryGetValue(name, out result))
+                    {
+                        WriteObject(new TypeAcceleratorInfo(name, result));
+                    }
 				}
 			}
 			else
@@ -101,7 +127,7 @@ namespace System.Management.Automation.Language
     /// <summary>
     /// The Add-TypeAccelerator cmdlet.
     /// </summary>
-    [Cmdlet("Add", "TypeAccelerator")]
+    [Cmdlet(VerbsCommon.Add, "TypeAccelerator")]
     public class AddTypeAcceleratorCommand : PSCmdlet
     {
         /// <summary>
@@ -141,7 +167,7 @@ namespace System.Management.Automation.Language
     /// <summary>
     /// The Remove-TypeAccelerator cmdlet.
     /// </summary>
-    [Cmdlet("Remove", "TypeAccelerator", ConfirmImpact = ConfirmImpact.High, SupportsShouldProcess = true)]
+    [Cmdlet(VerbsCommon.Remove, "TypeAccelerator", ConfirmImpact = ConfirmImpact.High, SupportsShouldProcess = true)]
     public class RemoveTypeAcceleratorCommand : PSCmdlet
     {
         /// <summary>
