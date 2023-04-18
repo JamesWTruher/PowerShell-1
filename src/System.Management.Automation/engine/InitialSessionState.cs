@@ -5296,6 +5296,9 @@ end {
         {
             cmdlets = new Dictionary<string, SessionStateCmdletEntry>(StringComparer.OrdinalIgnoreCase)
             {
+                { "Get-TypeAccelerator",               new SessionStateCmdletEntry("Get-TypeAccelerator", typeof(GetTypeAcceleratorCommand), helpFile) },
+                { "Add-TypeAccelerator",               new SessionStateCmdletEntry("Add-TypeAccelerator", typeof(AddTypeAcceleratorCommand), helpFile) },
+                { "Remove-TypeAccelerator",            new SessionStateCmdletEntry("Remove-TypeAccelerator", typeof(RemoveTypeAcceleratorCommand), helpFile) },
                 { "Add-History",                       new SessionStateCmdletEntry("Add-History", typeof(AddHistoryCommand), helpFile) },
                 { "Clear-History",                     new SessionStateCmdletEntry("Clear-History", typeof(ClearHistoryCommand), helpFile) },
                 { "Debug-Job",                         new SessionStateCmdletEntry("Debug-Job", typeof(DebugJobCommand), helpFile) },

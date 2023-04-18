@@ -852,7 +852,8 @@ namespace System.Management.Automation
 
         // We expose this one publicly for programmatic access to our type accelerator table, but it is
         // otherwise unused (so changes to this dictionary don't affect internals.)
-        private static Dictionary<string, Type> s_allTypeAccelerators;
+        private static ConcurrentDictionary<string, Type> s_allTypeAccelerators;
+        // private static Dictionary<string, Type> s_allTypeAccelerators;
 
         static TypeAccelerators()
         {
@@ -934,7 +935,8 @@ namespace System.Management.Automation
         public static bool Remove(string typeName)
         {
             userTypeAccelerators.Remove(typeName);
-            s_allTypeAccelerators?.Remove(typeName);
+            // s_allTypeAccelerators?.Remove(typeName);
+            s_allTypeAccelerators?.TryRemove(typeName, out _);
 
             return true;
         }
@@ -956,24 +958,24 @@ namespace System.Management.Automation
             {
                 if (s_allTypeAccelerators == null)
                 {
-                    s_allTypeAccelerators = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
+                    s_allTypeAccelerators = new ConcurrentDictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
                     FillCache(s_allTypeAccelerators);
                 }
 
-                return s_allTypeAccelerators;
+                return new Dictionary<string, Type>(s_allTypeAccelerators);
             }
         }
 
-        internal static void FillCache(Dictionary<string, Type> cache)
+        internal static void FillCache(ConcurrentDictionary<string, Type> cache)
         {
             foreach (KeyValuePair<string, Type> val in builtinTypeAccelerators)
             {
-                cache.Add(val.Key, val.Value);
+                cache.TryAdd(val.Key, val.Value);
             }
 
             foreach (KeyValuePair<string, Type> val in userTypeAccelerators)
             {
-                cache.Add(val.Key, val.Value);
+                cache.TryAdd(val.Key, val.Value);
             }
         }
     }
