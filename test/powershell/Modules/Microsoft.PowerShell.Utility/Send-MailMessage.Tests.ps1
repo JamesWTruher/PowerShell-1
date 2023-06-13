@@ -8,8 +8,21 @@ if(-not ("netDumbster.smtp.SimpleSmtpServer" -as [type]))
     $nugetPackage = "netDumbster"
     Install-Package -Name $nugetPackage -ProviderName NuGet -Scope CurrentUser -Force -Source 'nuget.org' -RequiredVersion 2.0.0.4
 
-    $dll = "$(Split-Path (Get-Package $nugetPackage).Source)\lib\netstandard2.0\netDumbster.dll"
-    Add-Type -Path $dll
+    $package = Get-Package $nugetPackage
+    if (-not $package) {
+        $skipTest = $true
+    }
+    else {
+        $baseDir = Split-Path $package.Source
+        $dll = Join-Path $baseDir "lib/netstandard2.0/netDumbster.dll"
+        Add-Type -Path $dll
+        if(-not ("netDumbster.smtp.SimpleSmtpServer" -as [type])) {
+            $skipTest = $true
+        }
+        else {
+            $skipTest = $false
+        }
+    }
 }
 
 $DefaultInputObject = @{
@@ -22,6 +35,10 @@ $DefaultInputObject = @{
 
 Describe "Send-MailMessage DRT Unit Tests" -Tags CI, RequireSudoOnUnix {
     BeforeAll {
+        if ($skipTest) {
+            return
+        }
+
         $server = [netDumbster.smtp.SimpleSmtpServer]::Start(25)
 
         function Read-Mail
@@ -37,6 +54,10 @@ Describe "Send-MailMessage DRT Unit Tests" -Tags CI, RequireSudoOnUnix {
     }
 
     BeforeEach {
+        if ($skipTest) {
+            return
+        }
+
         if($server)
         {
             $server.ClearReceivedEmail()
@@ -109,7 +130,7 @@ Describe "Send-MailMessage DRT Unit Tests" -Tags CI, RequireSudoOnUnix {
         }
     )
 
-    It "Shows obsolete message for cmdlet" {
+    It "Shows obsolete message for cmdlet" -skip:$skipTest -Because "failed to load netDumbster package" {
         $server | Should -Not -Be $null
 
         $powershell = [PowerShell]::Create()
@@ -124,7 +145,7 @@ Describe "Send-MailMessage DRT Unit Tests" -Tags CI, RequireSudoOnUnix {
         $warnings[0].ToString() | Should -BeLike "The command 'Send-MailMessage' is obsolete. *"
     }
 
-    It "Can send mail message using named parameters <Name>" -TestCases $testCases {
+    It "Can send mail message using named parameters <Name>" -TestCases $testCases -skip:$skipTest -Because "failed to load netDumbster package" {
         param($InputObject)
 
         $server | Should -Not -Be $null
@@ -214,6 +235,10 @@ Describe "Send-MailMessage Feature Tests" -Tags Feature, RequireSudoOnUnix {
 
     Context "Default Port 25" {
         BeforeAll {
+            if ($skipTest) {
+                return
+            }
+
             $server = [netDumbster.smtp.SimpleSmtpServer]::Start(25)
         }
 
@@ -224,7 +249,7 @@ Describe "Send-MailMessage Feature Tests" -Tags Feature, RequireSudoOnUnix {
             }
         }
 
-        It "Can throw on wrong mail addresses" {
+        It "Can throw on wrong mail addresses" -skip:$skipTest -Because "failed to load netDumbster package" {
             $server | Should -Not -Be $null
 
             $obj = $DefaultInputObject.Clone()
@@ -233,7 +258,7 @@ Describe "Send-MailMessage Feature Tests" -Tags Feature, RequireSudoOnUnix {
             { Send-MailMessage @obj -ErrorAction Stop } | Should -Throw -ErrorId "FormatException,Microsoft.PowerShell.Commands.SendMailMessage"
         }
 
-        It "Can send mail with free-form email address" {
+        It "Can send mail with free-form email address" -skip:$skipTest -Because "failed to load netDumbster package" {
             $server | Should -Not -Be $null
 
             $obj = $DefaultInputObject.Clone()
@@ -248,7 +273,7 @@ Describe "Send-MailMessage Feature Tests" -Tags Feature, RequireSudoOnUnix {
             $mail.ToAddresses | Should -BeExactly "user02@example.com"
         }
 
-        It "Can send mail with high priority" {
+        It "Can send mail with high priority" -skip:$skipTest -Because "failed to load netDumbster package" {
             $server | Should -Not -Be $null
 
             Send-MailMessage @DefaultInputObject -Priority High -ErrorAction SilentlyContinue
@@ -257,7 +282,7 @@ Describe "Send-MailMessage Feature Tests" -Tags Feature, RequireSudoOnUnix {
             $mail.Priority | Should -BeExactly "urgent"
         }
 
-        It "Can send mail with HTML content as body" {
+        It "Can send mail with HTML content as body" -skip:$skipTest -Because "failed to load netDumbster package" {
             $server | Should -Not -Be $null
 
             $obj = $DefaultInputObject.Clone()
@@ -271,7 +296,7 @@ Describe "Send-MailMessage Feature Tests" -Tags Feature, RequireSudoOnUnix {
             $mail.MessageParts[0].BodyData | Should -Be $obj.Body
         }
 
-        It "Can send mail with UTF8 encoding" {
+        It "Can send mail with UTF8 encoding" -skip:$skipTest -Because "failed to load netDumbster package" {
             $server | Should -Not -Be $null
 
             $obj = $DefaultInputObject.Clone()
@@ -286,7 +311,7 @@ Describe "Send-MailMessage Feature Tests" -Tags Feature, RequireSudoOnUnix {
             $utf8Text | Should -Be $obj.Body
         }
 
-        It "Can send mail with attachments" {
+        It "Can send mail with attachments" -skip:$skipTest -Because "failed to load netDumbster package" {
             $attachment1 = "TestDrive:\attachment1.txt"
             $attachment2 = "TestDrive:\attachment2.txt"
 
@@ -311,6 +336,10 @@ Describe "Send-MailMessage Feature Tests" -Tags Feature, RequireSudoOnUnix {
 
     Context "Custom Port 2525" {
         BeforeAll {
+            if ($skipTest) {
+                return
+            }
+
             $server = [netDumbster.smtp.SimpleSmtpServer]::Start(2525)
         }
 
@@ -321,7 +350,7 @@ Describe "Send-MailMessage Feature Tests" -Tags Feature, RequireSudoOnUnix {
             }
         }
 
-        It "Can send mail message using custom port 2525" {
+        It "Can send mail message using custom port 2525" -skip:$skipTest -Because "failed to load netDumbster package" {
             $server | Should -Not -Be $null
             $server.ReceivedEmailCount | Should -BeExactly 0
 
