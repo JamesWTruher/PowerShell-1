@@ -71,8 +71,47 @@ namespace System.Management.Automation
         {
             bool sawVerbatimArgumentMarker = false;
             bool first = true;
-            foreach (CommandParameterInternal parameter in parameters)
+            for (int i = 0; i < parameters.Count; i++)
             {
+                CommandParameterInternal parameter = parameters[i];
+
+                // Check to see if we have arguments without spaces between them.
+                // This can look like:
+                // $tBranch = ""; git rev-list $tBranch..origin/master
+                // We parse $tBranch..origin/master into 2 arguments so we need to put them back together.
+                if (i < parameters.Count - 1)
+                {
+                    int? end = parameter?.ArgumentAst?.Extent?.EndOffset;
+                    int? start = parameters[i + 1]?.ArgumentAst?.Extent?.StartOffset;
+                    // If the start of the next parameter is the same as the end of the current parameter there's no space between them
+                    // and we should combine them into a single parameter.
+                    if (end is not null && start is not null && end == start)
+                    {
+                        CommandParameterInternal compositeParameter = null;
+                        // nibble the next argument value into the current one
+                        // cook up a new extent for the argument which is the composite of the two
+                        if (parameter.ParameterAst is null)
+                        {
+                            var compositeArgumentValue = string.Format("{0}{1}", parameter?.ArgumentValue, parameters[i + 1]?.ArgumentValue);
+                            var compositeArgumentAst = Parser.ParseInput(compositeArgumentValue, out Token[] _, out ParseError[] _).Find(ast => ast is StringConstantExpressionAst, true);
+                            compositeParameter = CommandParameterInternal.CreateArgument(compositeArgumentValue, compositeArgumentAst, false);
+                            parameter = compositeParameter;
+                        }
+                        else
+                        {
+                            // Construct a whole new parameter with the composite argument
+                            string newParameterString = parameter?.ParameterAst.Extent.Text.Replace(parameter.ArgumentAst.Extent.Text, parameter?.ArgumentValue?.ToString());
+                            // add a fake command name so we can parse it and retrieve the parameter ast.
+                            var compositeParameterValue = string.Format("command {0}{1}", newParameterString, parameters[i + 1]?.ArgumentValue);
+                            CommandParameterAst compositeParameterAst = Parser.ParseInput(compositeParameterValue, out Token[] _, out ParseError[] _).Find(ast => ast is CommandParameterAst, true) as CommandParameterAst;
+                            compositeParameter = CommandParameterInternal.CreateParameter(compositeParameterAst.ParameterName, compositeParameterAst.Extent.Text, compositeParameterAst);
+                            parameter = compositeParameter;
+                        }
+                        // skip the next parameter
+                        i++;
+                    }
+                }
+
                 if (!first)
                 {
                     _arguments.Append(' ');
