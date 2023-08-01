@@ -81,11 +81,13 @@ namespace System.Management.Automation
                 // We parse $tBranch..origin/master into 2 arguments so we need to put them back together.
                 if (i < parameters.Count - 1)
                 {
-                    int? end = parameter?.ArgumentAst?.Extent?.EndOffset;
-                    int? start = parameters[i + 1]?.ArgumentAst?.Extent?.StartOffset;
+                    int? parmStart = parameter?.ParameterAst?.Extent?.StartOffset;
+                    int? parmEnd =  parameters[i + 1]?.ParameterAst?.Extent?.EndOffset;
+                    int? argEnd = parameter?.ArgumentAst?.Extent?.EndOffset;
+                    int? argStart = parameters[i + 1]?.ArgumentAst?.Extent?.StartOffset;
                     // If the start of the next parameter is the same as the end of the current parameter there's no space between them
                     // and we should combine them into a single parameter.
-                    if (end is not null && start is not null && end == start)
+                    if (argEnd is not null && argStart is not null && argEnd == argStart)
                     {
                         CommandParameterInternal compositeParameter = null;
                         // nibble the next argument value into the current one
@@ -100,7 +102,15 @@ namespace System.Management.Automation
                         else
                         {
                             // Construct a whole new parameter with the composite argument
-                            string newParameterString = parameter?.ParameterAst.Extent.Text.Replace(parameter.ArgumentAst.Extent.Text, parameter?.ArgumentValue?.ToString());
+                            string newParameterString;
+                            if (parameter.ArgumentAst is not null)
+                            {
+                                newParameterString = parameter?.ParameterAst.Extent.Text.Replace(parameter.ArgumentAst.Extent.Text, parameter?.ArgumentValue?.ToString());
+                            }
+                            else
+                            {
+                                newParameterString = parameter?.ParameterAst.Extent.Text.Replace(parameter.ArgumentAst.Extent.Text, parameter?.ArgumentValue?.ToString());
+                            }
                             // add a fake command name so we can parse it and retrieve the parameter ast.
                             var compositeParameterValue = string.Format("command {0}{1}", newParameterString, parameters[i + 1]?.ArgumentValue);
                             CommandParameterAst compositeParameterAst = Parser.ParseInput(compositeParameterValue, out Token[] _, out ParseError[] _).Find(ast => ast is CommandParameterAst, true) as CommandParameterAst;
@@ -108,6 +118,27 @@ namespace System.Management.Automation
                             parameter = compositeParameter;
                         }
                         // skip the next parameter
+                        i++;
+                    }
+                    else if (parameter.ParameterAst?.Extent.EndOffset == parameters[i + 1]?.ArgumentAst?.Extent.StartOffset)
+                    {
+                        // This could look like -parm=$a..6
+                        // this parses into 2 elements -parm=$a and ..6
+                        // we need to combine them back into a single parameter and evaluate the variable
+                        // CommandParameterInternal compositeParameter = null;
+                        var ast = Parser.ParseInput('"' + parameter.ParameterText + '"', out Token[] _, out ParseError[] _);
+                        var stringContainsVariable = ast.Find(ast => ast is VariableExpressionAst, true) as VariableExpressionAst;
+                        string compositeParameterString = null;
+                        if (stringContainsVariable is not null)
+                        {
+                            compositeParameterString = string.Format("{0}{1}", Context.Engine.Expand(parameter.ParameterText), parameters[i + 1].ArgumentValue);
+                        }
+                        else
+                        {
+                            compositeParameterString = string.Format("{0}{1}", parameter.ParameterText, parameters[i + 1].ArgumentValue);
+                        }
+                        CommandParameterInternal compositeParameter = CommandParameterInternal.CreateParameter(compositeParameterString.TrimStart('-'), compositeParameterString, null);
+                        parameter = compositeParameter;
                         i++;
                     }
                 }
@@ -515,7 +546,7 @@ namespace System.Management.Automation
             afterPrev -= arrayExtent.StartOffset;
             beforeNext -= arrayExtent.StartOffset;
 
-            if (arrayText[afterPrev] == ',') 
+            if (arrayText[afterPrev] == ',')
             {
                 return ", ";
             }
@@ -524,7 +555,7 @@ namespace System.Management.Automation
             {
                 return " ,";
             }
-            
+
             return " , ";
         }
 
