@@ -112,10 +112,12 @@ namespace System.Management.Automation
                                 newParameterString = parameter?.ParameterAst.Extent.Text.Replace(parameter.ArgumentAst.Extent.Text, parameter?.ArgumentValue?.ToString());
                             }
                             // add a fake command name so we can parse it and retrieve the parameter ast.
-                            var compositeParameterValue = string.Format("command {0}{1}", newParameterString, parameters[i + 1]?.ArgumentValue);
-                            CommandParameterAst compositeParameterAst = Parser.ParseInput(compositeParameterValue, out Token[] _, out ParseError[] _).Find(ast => ast is CommandParameterAst, true) as CommandParameterAst;
-                            compositeParameter = CommandParameterInternal.CreateParameter(compositeParameterAst.ParameterName, compositeParameterAst.Extent.Text, compositeParameterAst);
-                            parameter = compositeParameter;
+                            var compositeParameterValue = string.Format("{0}{1}", newParameterString, parameters[i + 1]?.ArgumentValue);
+                            // CommandParameterAst compositeParameterAst = Parser.ParseInput(compositeParameterValue, out Token[] _, out ParseError[] _).Find(ast => ast is CommandParameterAst, true) as CommandParameterAst;
+                            // compositeParameter = CommandParameterInternal.CreateParameter(compositeParameterAst.ParameterName, compositeParameterAst.Extent.Text, compositeParameterAst);
+                            var newParameterAst = Parser.ParseInput('"' + compositeParameterValue + '"', out Token[] _, out ParseError[] _).Find(ast => ast is StringConstantExpressionAst, true) as StringConstantExpressionAst;
+                            var compositeArgument = CommandParameterInternal.CreateArgument(compositeParameterValue, newParameterAst, false);
+                            parameter = compositeArgument;
                         }
                         // skip the next parameter
                         i++;
@@ -137,9 +139,14 @@ namespace System.Management.Automation
                         {
                             compositeParameterString = string.Format("{0}{1}", parameter.ParameterText, parameters[i + 1].ArgumentValue);
                         }
-                        CommandParameterInternal compositeParameter = CommandParameterInternal.CreateParameter(compositeParameterString.TrimStart('-'), compositeParameterString, null);
-                        parameter = compositeParameter;
-                        i++;
+                        // CommandParameterInternal compositeParameter = CommandParameterInternal.CreateParameter(compositeParameterString.TrimStart('-'), compositeParameterString, null);
+                        var newAst = Parser.ParseInput('"' + compositeParameterString + '"', out Token[] _, out ParseError[] _).Find(ast => ast is StringConstantExpressionAst, true) as StringConstantExpressionAst;
+                        if (newAst is not null)
+                        {
+                            CommandParameterInternal newCompositeArgument = CommandParameterInternal.CreateArgument(newAst.Value, newAst, false);
+                            parameter = newCompositeArgument;
+                            i++;
+                        }
                     }
                 }
 
