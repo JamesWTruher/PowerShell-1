@@ -3148,6 +3148,9 @@ namespace System.Management.Automation.Language
 
         /// <summary>The property is a hidden.</summary>
         Hidden = 0x40,
+
+        /// <summary>The property is readonly</summary>
+        Readonly = 0x80,
     }
 
     /// <summary>
@@ -3246,6 +3249,11 @@ namespace System.Management.Automation.Language
         /// Return true if the property is hidden.
         /// </summary>
         public bool IsHidden { get { return (PropertyAttributes & PropertyAttributes.Hidden) != 0; } }
+
+        /// <summary>
+        /// Return true if the property is Readonly.
+        /// </summary>
+        public bool IsReadonly { get { return (PropertyAttributes & PropertyAttributes.Readonly) != 0; } }
 
         /// <summary>
         /// Return true if the property is static.

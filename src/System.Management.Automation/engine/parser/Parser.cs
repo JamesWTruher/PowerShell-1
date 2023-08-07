@@ -4388,6 +4388,7 @@ namespace System.Management.Automation.Language
             // G      attribute
             // G      'static'
             // G      'hidden'
+            // G      'readonly'
 
             IScriptExtent startExtent = null;
             var attributeList = new List<AttributeAst>();
@@ -4395,6 +4396,7 @@ namespace System.Management.Automation.Language
             bool scanningAttributes = true;
             Token staticToken = null;
             Token hiddenToken = null;
+            Token readonlyToken = null;
             Token token = null;
             object lastAttribute = null;
             astsOnError = null;
@@ -4510,6 +4512,20 @@ namespace System.Management.Automation.Language
                         SkipToken();
                         break;
 
+                    case TokenKind.Readonly:
+                        if (readonlyToken != null)
+                        {
+                            ReportError(token.Extent,
+                                nameof(ParserStrings.DuplicateQualifier),
+                                ParserStrings.DuplicateQualifier,
+                                token.Text);
+                        }
+
+                        readonlyToken = token;
+                        lastAttribute = token;
+                        SkipToken();
+                        break;
+
                     default:
                         scanningAttributes = false;
                         break;
@@ -4544,6 +4560,11 @@ namespace System.Management.Automation.Language
                 if (hiddenToken != null)
                 {
                     attributes |= PropertyAttributes.Hidden;
+                }
+
+                if (readonlyToken != null)
+                {
+                    attributes |= PropertyAttributes.Readonly;
                 }
 
                 var endExtent = initialValueAst != null ? initialValueAst.Extent : varToken.Extent;

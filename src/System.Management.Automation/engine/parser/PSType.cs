@@ -24,6 +24,9 @@ namespace System.Management.Automation.Language
         private static readonly CustomAttributeBuilder s_hiddenCustomAttributeBuilder =
             new CustomAttributeBuilder(typeof(HiddenAttribute).GetConstructor(Type.EmptyTypes), Array.Empty<object>());
 
+        private static readonly CustomAttributeBuilder s_readonlyCustomAttributeBuilder =
+            new CustomAttributeBuilder(typeof(ReadonlyAttribute).GetConstructor(Type.EmptyTypes), Array.Empty<object>());
+
         private static readonly string s_sessionStateKeeperFieldName = "__sessionStateKeeper";
         internal static readonly string SessionStateFieldName = "__sessionState";
 
@@ -702,12 +705,20 @@ namespace System.Management.Automation.Language
                 // Map the two methods created above to our PropertyBuilder to
                 // their corresponding behaviors, "get" and "set" respectively.
                 property.SetGetMethod(getMethod);
-                property.SetSetMethod(setMethod);
+                if (! propertyMemberAst.IsReadonly)
+                {
+                    property.SetSetMethod(setMethod);
+                }
 
                 if (propertyMemberAst.IsHidden)
                 {
                     property.SetCustomAttribute(s_hiddenCustomAttributeBuilder);
                 }
+
+                //if (propertyMemberAst.IsReadonly)
+                //{
+                    //property.SetCustomAttribute(s_readonlyCustomAttributeBuilder);
+                //}
 
                 return property;
             }
