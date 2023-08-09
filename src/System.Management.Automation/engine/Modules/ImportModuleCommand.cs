@@ -619,7 +619,7 @@ namespace Microsoft.PowerShell.Commands
                 // avoid double reporting for WinCompat modules that go through CommandDiscovery\AutoloadSpecifiedModule
                 if (!foundModule.IsWindowsPowerShellCompatModule)
                 {
-                    if (foundModule.Tags.Where(t => t.Equals("CrescendoBuilt", StringComparison.OrdinalIgnoreCase)) is not null)
+                    if (foundModule.Tags.Any(t => t.Equals("CrescendoBuilt", StringComparison.OrdinalIgnoreCase)))
                     {
                         ApplicationInsightsTelemetry.SendModuleTelemetryMetric(TelemetryType.ModuleLoad, foundModule.Name, foundModule.Version?.ToString(), "CrescendoBuilt");
                     }

@@ -694,7 +694,7 @@ namespace Microsoft.PowerShell.Telemetry
             {
                 string allowedModuleName = GetModuleName(moduleName);
                 string allowedModuleVersion = allowedModuleName == Anonymous ? AnonymousVersion : moduleVersion;
-                s_telemetryClient.GetMetric(telemetryType.ToString(), "uuid", "SessionId", "ModuleTag").TrackValue(metricValue: 1.0, s_uniqueUserIdentifier, s_sessionId, allowedModuleName, moduleTag);
+                s_telemetryClient.GetMetric(telemetryType.ToString(), "uuid", "SessionId", "ModuleTag").TrackValue(metricValue: 1.0, s_uniqueUserIdentifier, s_sessionId, moduleTag);
                 s_telemetryClient.GetMetric(telemetryType.ToString(), "uuid", "SessionId", "ModuleName", "Version").TrackValue(metricValue: 1.0, s_uniqueUserIdentifier, s_sessionId, allowedModuleName, allowedModuleVersion);
             }
             catch
