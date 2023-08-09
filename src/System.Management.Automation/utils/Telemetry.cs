@@ -124,6 +124,9 @@ namespace Microsoft.PowerShell.Telemetry
         // Use '0.0' as the string for an anonymous module version
         private const string AnonymousVersion = "0.0";
 
+        // No Tag information
+        private const string NoTag = "NoTag";
+
         // the telemetry failure string
         private const string _telemetryFailure = "TELEMETRY_FAILURE";
 
@@ -679,7 +682,8 @@ namespace Microsoft.PowerShell.Telemetry
         /// <param name="telemetryType">The type of telemetry that we'll be sending.</param>
         /// <param name="moduleName">The module name to report. If it is not allowed, then it is set to 'anonymous'.</param>
         /// <param name="moduleVersion">The module version to report. The default value is the anonymous version '0.0.0.0'.</param>
-        internal static void SendModuleTelemetryMetric(TelemetryType telemetryType, string moduleName, string moduleVersion = AnonymousVersion)
+        /// <param name="moduleTag">The module tag to report. The default value is the anonymous version 'NoTag'.</param>
+        internal static void SendModuleTelemetryMetric(TelemetryType telemetryType, string moduleName, string moduleVersion = AnonymousVersion, string moduleTag = NoTag)
         {
             if (!CanSendTelemetry)
             {
@@ -690,6 +694,7 @@ namespace Microsoft.PowerShell.Telemetry
             {
                 string allowedModuleName = GetModuleName(moduleName);
                 string allowedModuleVersion = allowedModuleName == Anonymous ? AnonymousVersion : moduleVersion;
+                s_telemetryClient.GetMetric(telemetryType.ToString(), "uuid", "SessionId", "ModuleTag").TrackValue(metricValue: 1.0, s_uniqueUserIdentifier, s_sessionId, allowedModuleName, moduleTag);
                 s_telemetryClient.GetMetric(telemetryType.ToString(), "uuid", "SessionId", "ModuleName", "Version").TrackValue(metricValue: 1.0, s_uniqueUserIdentifier, s_sessionId, allowedModuleName, allowedModuleVersion);
             }
             catch
