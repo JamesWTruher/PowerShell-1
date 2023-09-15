@@ -423,7 +423,15 @@ namespace System.Management.Automation
 
         internal static List<CompletionResult> CompleteModuleName(CompletionContext context, bool loadedModulesOnly, bool skipEditionCheck = false)
         {
-            var moduleName = context.WordToComplete ?? string.Empty;
+            string moduleName;
+            if (context.GetOption("RelaxedModuleMatch", @default: false)) {
+                moduleName = "*";
+                moduleName += context.WordToComplete ?? string.Empty;
+            }
+            else {
+                moduleName = context.WordToComplete ?? string.Empty;
+            }
+
             var result = new List<CompletionResult>();
             var quote = HandleDoubleAndSingleQuote(ref moduleName);
 
