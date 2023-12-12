@@ -4146,6 +4146,7 @@ function New-GlobalToolNupkgSource
         "Unified"
         {
             $ShimDllPath = Join-Path $WindowsDesktopBinPath "Microsoft.PowerShell.GlobalTool.Shim.dll"
+            $ShimExePath = Join-Path $WindowsDesktopBinPath "Microsoft.PowerShell.GlobalTool.Shim.exe"
 
             $PackageName = "PowerShell"
             $RootFolder = New-TempFolder
@@ -4164,6 +4165,9 @@ function New-GlobalToolNupkgSource
 
             Write-Log "New-GlobalToolNupkgSource: Copying shim dll from $ShimDllPath"
             Copy-Item $ShimDllPath -Destination $ridFolder
+
+            Write-Log "New-GlobalToolNupkgSource: Copying shim exe from $ShimExePath"
+            Copy-Item $ShimExePath -Destination $ridFolder
 
             $shimConfigFile = Join-Path (Split-Path $ShimDllPath -Parent) 'Microsoft.PowerShell.GlobalTool.Shim.runtimeconfig.json'
             Write-Log "New-GlobalToolNupkgSource: Copying shim config file from $shimConfigFile"
