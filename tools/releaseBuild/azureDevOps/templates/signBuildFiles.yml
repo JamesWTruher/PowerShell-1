@@ -47,6 +47,7 @@ steps:
     if('${{ parameters.addWindowsModules }}' -ne 'false') {
       $itemsToCopy += @{
         "$($fullSymbolsFolder)\pwsh.exe" = ""
+        "$($fullSymbolsFolder)\Microsoft.PowerShell.GlobalTool.Shim.exe" = ""
         "$($fullSymbolsFolder)\Microsoft.Management.Infrastructure.CimCmdlets.dll" = ""
         "$($fullSymbolsFolder)\Microsoft.WSMan.*.dll" = ""
         "$($fullSymbolsFolder)\Modules\CimCmdlets\CimCmdlets.psd1" = "Modules\CimCmdlets"
