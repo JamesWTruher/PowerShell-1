@@ -60,7 +60,7 @@ steps:
         "$($fullSymbolsFolder)\Modules\PSDiagnostics\PSDiagnostics.ps?1" = "Modules\PSDiagnostics"
       }
       $globalShimExe = "$($fullSymbolsFolder)\Microsoft.PowerShell.GlobalTool.Shim.exe"
-      if (Test-Path $globalExe) {
+      if (Test-Path $globalShimExe) {
         $itemsToCopy += @{ "$globalShimExe" = "" }
       }
     }
