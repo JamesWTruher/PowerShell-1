@@ -163,7 +163,6 @@ steps:
     if('$(ArtifactPlatform)' -eq 'windows') {
       $itemsToCopy += @{
         "$($fullSymbolsFolder)\pwsh.exe" = ""
-        "$($fullSymbolsFolder)\Microsoft.PowerShell.GlobalTool.Shim.exe" = ""
         "$($fullSymbolsFolder)\Microsoft.Management.Infrastructure.CimCmdlets.dll" = ""
         "$($fullSymbolsFolder)\Microsoft.WSMan.*.dll" = ""
         "$($fullSymbolsFolder)\Modules\CimCmdlets\CimCmdlets.psd1" = "Modules\CimCmdlets"
@@ -175,6 +174,10 @@ steps:
         "$($fullSymbolsFolder)\Modules\Microsoft.WSMan.Management\Microsoft.WSMan.Management.psd1" = "Modules\Microsoft.WSMan.Management"
         "$($fullSymbolsFolder)\Modules\Microsoft.WSMan.Management\WSMan.format.ps1xml" = "Modules\Microsoft.WSMan.Management"
         "$($fullSymbolsFolder)\Modules\PSDiagnostics\PSDiagnostics.ps?1" = "Modules\PSDiagnostics"
+      }
+      $globalShimExe = "$($fullSymbolsFolder)\Microsoft.PowerShell.GlobalTool.Shim.exe"
+      if (Test-Path $globalExe) {
+        $itemsToCopy += @{ "$globalShimExe" = "" }
       }
     }
     else {
