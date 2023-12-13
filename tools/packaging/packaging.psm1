@@ -900,6 +900,7 @@ function Update-PSSignedBuildFolder
 
     foreach($filter in $RemoveFilter) {
         $removePath = Join-Path -Path $BuildPath -ChildPath $filter
+        Write-Log "Removing $removePath"
         Remove-Item -Path $removePath -Recurse -Force
     }
 }
