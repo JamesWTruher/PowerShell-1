@@ -229,7 +229,7 @@ steps:
     $dlls = Get-ChildItem -Recurse -Path $BuildPath | Where-Object { $_.name -match "*.dll|*.exe" }
     $signatures = $dlls | Get-AuthenticodeSignature
     $missingSignatures = $signatures | Where-Object { $_.status -eq 'notsigned' -or $_.SignerCertificate.Issuer -notmatch '^CN=Microsoft.*'}| select-object -ExpandProperty Path
-    $signatures | Where-Object { $_.path -match "\.exe$" } | Format-Table -Hide Status,Length,{$_.SignerCertificate.Issuer},Path | Out-String -Str | Write-Verbose -Verbose
+    $signatures | Where-Object { $_.path -match "\.exe$" } | Format-Table -Hide Status,Length,{$_.SignerCertificate.Issuer},Path | Out-String -Str -Width 300 | Write-Verbose -Verbose
 
     Write-Verbose -verbose "to be signed:`r`n $($missingSignatures | Out-String)"
 
