@@ -20,10 +20,6 @@
     "FileType": "NonProduct"
   },
   {
-    "Pattern": "clrgcexp.dll",
-    "FileType": "NonProduct"
-  },
-  {
     "Pattern": "clrjit.dll",
     "FileType": "NonProduct"
   },
@@ -100,6 +96,26 @@
     "FileType": "NonProduct"
   },
   {
+    "Pattern": "cs\\Microsoft.VisualBasic.Forms.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "cs\\System.Windows.Forms.Design.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "cs\\System.Windows.Forms.Primitives.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "cs\\System.Windows.Forms.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "cs\\System.Windows.Input.Manipulations.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
     "Pattern": "D3DCompiler_47_cor3.dll",
     "FileType": "NonProduct"
   },
@@ -165,6 +181,26 @@
   },
   {
     "Pattern": "de/WindowsFormsIntegration.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "de\\Microsoft.VisualBasic.Forms.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "de\\System.Windows.Forms.Design.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "de\\System.Windows.Forms.Primitives.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "de\\System.Windows.Forms.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "de\\System.Windows.Input.Manipulations.resources.dll",
     "FileType": "NonProduct"
   },
   {
@@ -240,6 +276,26 @@
     "FileType": "NonProduct"
   },
   {
+    "Pattern": "es\\Microsoft.VisualBasic.Forms.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "es\\System.Windows.Forms.Design.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "es\\System.Windows.Forms.Primitives.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "es\\System.Windows.Forms.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "es\\System.Windows.Input.Manipulations.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
     "Pattern": "fr/Microsoft.CodeAnalysis.CSharp.resources.dll",
     "FileType": "NonProduct"
   },
@@ -301,6 +357,26 @@
   },
   {
     "Pattern": "fr/WindowsFormsIntegration.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "fr\\Microsoft.VisualBasic.Forms.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "fr\\System.Windows.Forms.Design.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "fr\\System.Windows.Forms.Primitives.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "fr\\System.Windows.Forms.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "fr\\System.Windows.Input.Manipulations.resources.dll",
     "FileType": "NonProduct"
   },
   {
@@ -388,6 +464,26 @@
     "FileType": "NonProduct"
   },
   {
+    "Pattern": "it\\Microsoft.VisualBasic.Forms.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "it\\System.Windows.Forms.Design.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "it\\System.Windows.Forms.Primitives.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "it\\System.Windows.Forms.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "it\\System.Windows.Input.Manipulations.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
     "Pattern": "ja/Microsoft.CodeAnalysis.CSharp.resources.dll",
     "FileType": "NonProduct"
   },
@@ -449,6 +545,26 @@
   },
   {
     "Pattern": "ja/WindowsFormsIntegration.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "ja\\Microsoft.VisualBasic.Forms.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "ja\\System.Windows.Forms.Design.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "ja\\System.Windows.Forms.Primitives.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "ja\\System.Windows.Forms.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "ja\\System.Windows.Input.Manipulations.resources.dll",
     "FileType": "NonProduct"
   },
   {
@@ -525,6 +641,26 @@
   },
   {
     "Pattern": "ko/WindowsFormsIntegration.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "ko\\Microsoft.VisualBasic.Forms.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "ko\\System.Windows.Forms.Design.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "ko\\System.Windows.Forms.Primitives.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "ko\\System.Windows.Forms.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "ko\\System.Windows.Input.Manipulations.resources.dll",
     "FileType": "NonProduct"
   },
   {
@@ -617,6 +753,10 @@
   },
   {
     "Pattern": "Microsoft.VisualBasic.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "Microsoft.VisualBasic.Forms.dll",
     "FileType": "NonProduct"
   },
   {
@@ -860,6 +1000,26 @@
     "FileType": "NonProduct"
   },
   {
+    "Pattern": "pl\\Microsoft.VisualBasic.Forms.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "pl\\System.Windows.Forms.Design.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "pl\\System.Windows.Forms.Primitives.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "pl\\System.Windows.Forms.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "pl\\System.Windows.Input.Manipulations.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
     "Pattern": "powershell.config.json",
     "FileType": "NonProduct"
   },
@@ -1013,6 +1173,26 @@
   },
   {
     "Pattern": "pt-BR/WindowsFormsIntegration.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "pt-BR\\Microsoft.VisualBasic.Forms.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "pt-BR\\System.Windows.Forms.Design.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "pt-BR\\System.Windows.Forms.Primitives.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "pt-BR\\System.Windows.Forms.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "pt-BR\\System.Windows.Input.Manipulations.resources.dll",
     "FileType": "NonProduct"
   },
   {
@@ -1756,6 +1936,26 @@
     "FileType": "NonProduct"
   },
   {
+    "Pattern": "ru\\Microsoft.VisualBasic.Forms.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "ru\\System.Windows.Forms.Design.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "ru\\System.Windows.Forms.Primitives.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "ru\\System.Windows.Forms.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "ru\\System.Windows.Input.Manipulations.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
     "Pattern": "Schemas/PSMaml/base.xsd",
     "FileType": "NonProduct"
   },
@@ -2076,6 +2276,10 @@
     "FileType": "NonProduct"
   },
   {
+    "Pattern": "System.Design.dll",
+    "FileType": "NonProduct"
+  },
+  {
     "Pattern": "System.Diagnostics.Contracts.dll",
     "FileType": "NonProduct"
   },
@@ -2145,6 +2349,10 @@
   },
   {
     "Pattern": "System.Drawing.Common.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "System.Drawing.Design.dll",
     "FileType": "NonProduct"
   },
   {
@@ -2756,6 +2964,22 @@
     "FileType": "NonProduct"
   },
   {
+    "Pattern": "System.Windows.Forms.Design.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "System.Windows.Forms.Design.Editors.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "System.Windows.Forms.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "System.Windows.Forms.Primitives.dll",
+    "FileType": "NonProduct"
+  },
+  {
     "Pattern": "System.Windows.Input.Manipulations.dll",
     "FileType": "NonProduct"
   },
@@ -2872,6 +3096,26 @@
     "FileType": "NonProduct"
   },
   {
+    "Pattern": "tr\\Microsoft.VisualBasic.Forms.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "tr\\System.Windows.Forms.Design.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "tr\\System.Windows.Forms.Primitives.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "tr\\System.Windows.Forms.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "tr\\System.Windows.Input.Manipulations.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
     "Pattern": "UIAutomationClient.dll",
     "FileType": "NonProduct"
   },
@@ -2968,6 +3212,26 @@
     "FileType": "NonProduct"
   },
   {
+    "Pattern": "zh-Hans\\Microsoft.VisualBasic.Forms.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "zh-Hans\\System.Windows.Forms.Design.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "zh-Hans\\System.Windows.Forms.Primitives.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "zh-Hans\\System.Windows.Forms.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "zh-Hans\\System.Windows.Input.Manipulations.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
     "Pattern": "zh-Hant/Microsoft.CodeAnalysis.CSharp.resources.dll",
     "FileType": "NonProduct"
   },
@@ -3029,6 +3293,26 @@
   },
   {
     "Pattern": "zh-Hant/WindowsFormsIntegration.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "zh-Hant\\Microsoft.VisualBasic.Forms.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "zh-Hant\\System.Windows.Forms.Design.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "zh-Hant\\System.Windows.Forms.Primitives.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "zh-Hant\\System.Windows.Forms.resources.dll",
+    "FileType": "NonProduct"
+  },
+  {
+    "Pattern": "zh-Hant\\System.Windows.Input.Manipulations.resources.dll",
     "FileType": "NonProduct"
   },
   {
