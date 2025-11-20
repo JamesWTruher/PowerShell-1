@@ -55,7 +55,7 @@ jobs:
       source: ${{ steps.filter.outputs.source }}
     steps:
       - name: checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Change Detection
         id: filter
@@ -70,7 +70,7 @@ jobs:
     if: ${{ needs.changes.outputs.source == 'true' }}
     steps:
       - name: checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 1000
       - name: Build
@@ -84,7 +84,7 @@ jobs:
     runs-on: macos-15-large
     steps:
       - name: checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 1000
       - name: macOS Unelevated CI
@@ -101,7 +101,7 @@ jobs:
     runs-on: macos-15-large
     steps:
       - name: checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 1000
       - name: macOS Elevated CI
@@ -118,7 +118,7 @@ jobs:
     runs-on: macos-15-large
     steps:
       - name: checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 1000
       - name: macOS Unelevated Others
@@ -135,7 +135,7 @@ jobs:
     runs-on: macos-15-large
     steps:
       - name: checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 1000
       - name: macOS Elevated Others
@@ -161,7 +161,7 @@ jobs:
       - macos-15-large
     steps:
     - name: checkout
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
     - name: Bootstrap packaging
       if: success() || failure()
       run: |-
