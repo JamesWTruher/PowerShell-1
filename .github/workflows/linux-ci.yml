@@ -188,7 +188,7 @@ jobs:
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@16140ae1a102900babc80a33c44059580f687047 # v3.29.5
+      uses: github/codeql-action/init@1b168cd39490f61582a9beae412bb7057a6b2c4e # v3.29.5
       with:
         languages: ${{ matrix.language }}
         # If you wish to specify custom queries, you can do so here or in a config file.
@@ -214,7 +214,7 @@ jobs:
       shell: pwsh
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@16140ae1a102900babc80a33c44059580f687047 # v3.29.5
+      uses: github/codeql-action/analyze@1b168cd39490f61582a9beae412bb7057a6b2c4e # v3.29.5
 
   ready_to_merge:
     name: Linux ready to merge
