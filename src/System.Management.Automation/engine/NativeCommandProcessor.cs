@@ -6,6 +6,7 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -14,6 +15,7 @@ using System.IO;
 using System.Linq;
 using System.Management.Automation.Internal;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
@@ -563,7 +565,8 @@ namespace System.Management.Automation
             // to know if output is redirected before we can bind parameters.
             if (!_isMiniShell)
             {
-                this.NativeParameterBinderController.BindParameters(arguments);
+                var newArguments = combineWithDefaults(psDefaultParameterValues, arguments);
+                this.NativeParameterBinderController.BindParameters(newArguments);
             }
 
             try
@@ -576,6 +579,85 @@ namespace System.Management.Automation
                 CleanUp(killBackgroundProcess: true);
                 throw;
             }
+        }
+
+        /// <summary>
+        /// This method combines the provided arguments with the default parameter values from the session state
+        /// found in $PSDefaultParameterValues (if found). If there are any parameters in the default parameter
+        /// values that are not already specified in the provided arguments, they will be added to the argument list.
+        /// If there are parameters that have been specified in both the provided arguments and the default parameter values,
+        /// the provided arguments will take precedence and the default parameter values for those parameters will be ignored.
+        /// Note that this will only add work with parameters which look like a parameter (starting with a "-", or "--").
+        /// </summary>
+        /// <param name="psDefaultParameterValues">The dictionary of default parameter values.</param>
+        /// <param name="arguments">The provided arguments found in the command line.</param>
+        /// <returns>A collection of CommandParameterInternal objects.</returns>
+        private Collection<CommandParameterInternal> combineWithDefaults(IDictionary psDefaultParameterValues, Collection<CommandParameterInternal> arguments)
+        {
+            // If there are no default parameter values, just return the original arguments.
+            if (psDefaultParameterValues == null || psDefaultParameterValues.Count == 0)
+            {
+                return arguments;
+            }
+
+            // Search the default parameter values collection looking for our command name.
+            // If found, pull out the parameter name and value and put in in a new dictionary.
+            // If nothing is found for the command name, we'll return the original arguments.
+            string nativeCommandName = this.Command.CommandInfo.Name;
+            IDictionary<string, string> defaultParametersForCommand = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            foreach (string key in psDefaultParameterValues.Keys)
+            {
+                string defaultValueCommandName = key.Split(':')[0];
+                if (string.Equals(defaultValueCommandName, nativeCommandName, StringComparison.OrdinalIgnoreCase))
+                {
+                    string defaultParameterName = key.Split(':')[1];
+                    defaultParametersForCommand[defaultParameterName] = psDefaultParameterValues[key] is null ?
+                        string.Empty : psDefaultParameterValues[key].ToString();
+                }
+            }
+
+            if (defaultParametersForCommand.Count == 0)
+            {
+                return arguments;
+            }
+
+            // be sure to not add any default parameters if the user has already specified
+            // a value for that parameter in the command line
+            Collection<CommandParameterInternal> adjustedArguments = new(arguments);
+            foreach (CommandParameterInternal argument in arguments)
+            {
+                // Skip any arguements that don't specify a parameter name.
+                if (!argument.ParameterNameSpecified)
+                {
+                    continue;
+                }
+
+                if (defaultParametersForCommand.ContainsKey(argument.ParameterText))
+                {
+                    defaultParametersForCommand.Remove(argument.ParameterText);
+                }
+            }
+
+            if (defaultParametersForCommand.Count == 0)
+            {
+                return arguments;
+            }
+
+            foreach (KeyValuePair<string, string> kvp in defaultParametersForCommand)
+            {
+                if (kvp.Value == String.Empty)
+                {
+                    // If the default value is empty string, we should pass it as a parameter without value to the native command,
+                    // which means we need to add the parameter name without value in the command line (ala switch).
+                    adjustedArguments.Add(CommandParameterInternal.CreateParameter(kvp.Key.TrimStart('-'), kvp.Key));
+                }
+                else
+                {
+                    adjustedArguments.Add(CommandParameterInternal.CreateParameterWithArgument(null, kvp.Key.TrimStart('-'), kvp.Key, null, kvp.Value, spaceAfterParameter: true));
+                }
+            }
+
+            return adjustedArguments;
         }
 
         /// <summary>
